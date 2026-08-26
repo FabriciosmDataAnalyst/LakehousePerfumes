@@ -39,3 +39,45 @@ resources:
           depends_on:
             - task_key: raw_conferencia
           max_retries: 0
+
+        # silver: cada tarefa cuida de um grupo de assuntos. Rodam EM PARALELO
+        # entre si (so dependem da bronze); SQL serverless no warehouse do target.
+        - task_key: silver_clientes
+          description: Limpa e deduplica clientes por CNPJ (3.000 unicos) e declara o contrato da tabela.
+          sql_task:
+            warehouse_id: ${var.warehouse_id}
+            file:
+              path: ../src/silver/01-clientes.sql
+          depends_on:
+            - task_key: bronze_ingestao
+          max_retries: 0
+
+        - task_key: silver_pedidos
+          description: Normaliza data, tipa valor, cria cancelado/valor_liquido/ano/mes e declara o contrato.
+          sql_task:
+            warehouse_id: ${var.warehouse_id}
+            file:
+              path: ../src/silver/02-pedidos.sql
+          depends_on:
+            - task_key: bronze_ingestao
+          max_retries: 0
+
+        - task_key: silver_produtos_itens
+          description: Tipa produtos e itens_pedido, sinaliza devolucao/sku_descontinuado e declara o contrato.
+          sql_task:
+            warehouse_id: ${var.warehouse_id}
+            file:
+              path: ../src/silver/03-itens-e-produtos.sql
+          depends_on:
+            - task_key: bronze_ingestao
+          max_retries: 0
+
+        - task_key: silver_crm_financeiro
+          description: Limpa vendedores, carteira, oportunidades, visitas, pagamentos e estoque; expoe carteiras orfas de vendedor desligado.
+          sql_task:
+            warehouse_id: ${var.warehouse_id}
+            file:
+              path: ../src/silver/04-crm-e-financeiro.sql
+          depends_on:
+            - task_key: bronze_ingestao
+          max_retries: 0
