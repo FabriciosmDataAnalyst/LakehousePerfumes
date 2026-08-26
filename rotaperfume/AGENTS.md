@@ -75,12 +75,28 @@ spec/PRD for the bundle and contains the exact commands and their required order
 - `dbutils.widgets.get("catalog")` + `base_parameters` is how the job passes the
   catalog; `spark.sql(f"CREATE SCHEMA IF NOT EXISTS {CATALOG}.bronze")` first
   (schema is created by the bundle, but the table lives there).
+- **Serverless `sql_task` (silver/gold) must point to the SQL file with
+  `sql_task: { file: { path: ../src/... } }`, NOT `sql_file_path`.** The bundle
+  validator rejects `sql_file_path` ("unknown field: sql_file_path") and won't
+  warn you at deploy — it only shows as a validate warning. Each silver.sql uses
+  full `lakehouse_rotaperfume.silver.x` identifiers (sql_task won't substitute
+  params), `USING DELTA COMMENT` already applies to SQL files.
+- **Verify silver without the cluster**: `databricks experimental aitools tools
+  query` runs one statement only (no multi-statement or `INSERT ... * REPLACE` —
+  parse error). For the "contract has teeth" demo use a single
+  `INSERT ... VALUES` that violates the CHECK and assert it returns
+  `DELTA_VIOLATE_CONSTRAINT_WITH_VALUES`.
 
 ### Code conventions
 - Notebook tasks are Python serverless with a `# Databricks notebook source`
   header and read params via `dbutils.widgets` (e.g. a `catalog` widget).
 - `resources/*.yml` define schemas/volumes/jobs; add `COMMENT`s explaining each
   layer's role.
+- Silver tables are SQL tasks in `src/silver/*.sql`, one per subject group, each
+  declared in the job with `sql_task.file.path` and `depends_on: bronze_ingestao`
+  (they run in parallel). Every data/date conversion uses `try_to_date()`/`try_*`
+  because ANSI mode is ON: malformed input ABORTS the query (CAST_INVALID_INPUT)
+  instead of returning NULL.
 
 ### Data
 - Raw source CSVs live outside the bundle at the repo root: `dados/crm/` and
