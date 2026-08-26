@@ -1,0 +1,31 @@
+# Job rotaperfume_pipeline - pipeline completo de dados da perfumaria.
+#
+# ESTE JOB GANHA TAREFAS NOS PROXIMOS PROMPTS. Desenho de como vai ficar:
+#
+#   raw_conferencia   -> confere a chegada dos 10 arquivos no Volume (Deploy 1)
+#   + bronze_*        -> le o raw do Volume e grava as tabelas bronze (Deploy 2+)
+#   + silver_*        -> valida/limpa e grava silver (Deploy 3+)
+#   + gold_*          -> monta visoes finais para dashboard (Deploy 4+)
+#
+# Agendado diario as 06h (America/Sao_Paulo). O agendamento nasce PAUSED:
+# ver databricks.yml (nao usamos mode:development, que prefixaria os schemas com
+# [dev <usuario>] e quebraria o SQL; pausamos via presets).
+
+resources:
+  jobs:
+    rotaperfume_pipeline:
+      name: rotaperfume_pipeline
+      schedule:
+        quartz_cron_expression: "0 0 6 * * ?"
+        timezone_id: America/Sao_Paulo
+        pause_status: PAUSED
+
+      tasks:
+        - task_key: raw_conferencia
+          description: Confere a chegada dos 10 arquivos de raw no Volume e grava a tabela de controle bronze._raw_arquivos.
+          notebook_task:
+            notebook_path: ../src/raw/conferencia.py
+            base_parameters:
+              catalog: ${var.catalog}
+          # Jobs do Free Edition sao serverless: nao ha compute definida aqui.
+          max_retries: 0

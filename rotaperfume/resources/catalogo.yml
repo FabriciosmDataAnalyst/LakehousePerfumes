@@ -1,0 +1,33 @@
+# O restante do catalogo como recurso do bundle.
+# O catalogo em si NAO esta aqui: no Free Edition a API do UC recusa criar
+# catalogo (Default Storage ligado). Ele e criado via SQL em scripts/criar-catalogo.sh.
+# Isso e a prova de que o catalogo inteiro e codigo, nao clique.
+
+resources:
+  # bronze: dados brutos como arquivos no Volume + tabelas de controle/conferencia.
+  # Os CSVs chegam aqui exatamente como sairam do ERP/CRM.
+  # silver: dados validados, limpos e padronizados, prontos para consumo.
+  # gold: visoes/modelos finais para dashboards e relatorios.
+  schemas:
+    bronze:
+      name: bronze
+      catalog_name: ${var.catalog}
+      comment: Dados brutos. Arquivos no Volume (raw) + tabelas de conferencia e controle.
+    silver:
+      name: silver
+      catalog_name: ${var.catalog}
+      comment: Dados validados, limpos e padronizados, prontos para consumo analitico.
+    gold:
+      name: gold
+      catalog_name: ${var.catalog}
+      comment: Modelos finais e visoes agregadas para dashboards e relatorios.
+
+  # Volume que guarda os CSVs de chegada, byte por byte, como fonte de verdade.
+  # Raw e arquivo (aqui); bronze e tabela (nos schemas acima).
+  volumes:
+    raw:
+      name: raw
+      catalog_name: ${var.catalog}
+      schema_name: bronze
+      volume_type: MANAGED
+      comment: Camada raw - arquivos CSV originais de ERP e CRM, organizados por sistema.
