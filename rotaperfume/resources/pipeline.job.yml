@@ -29,3 +29,13 @@ resources:
               catalog: ${var.catalog}
           # Jobs do Free Edition sao serverless: nao ha compute definida aqui.
           max_retries: 0
+
+        - task_key: bronze_ingestao
+          description: Le os 10 CSVs do raw no Volume e grava as tabelas delta da bronze (tudo como texto, mais _ingerido_em e _arquivo_origem).
+          notebook_task:
+            notebook_path: ../src/bronze/ingestao.py
+            base_parameters:
+              catalog: ${var.catalog}
+          depends_on:
+            - task_key: raw_conferencia
+          max_retries: 0
