@@ -81,3 +81,49 @@ resources:
           depends_on:
             - task_key: bronze_ingestao
           max_retries: 0
+
+        # gold: modelado para consumo. cadeia sequencial - dimensoes -> fato ->
+        # marts -> testes. O teste roda POR ULTIMO e e obrigatorio: se falhar,
+        # o job para e o dashboard fica com o dado de ontem, nunca com o errado.
+        - task_key: gold_dimensoes
+          description: Quatro dimensoes conformadas (cliente, produto, vendedor, calendario) para os marts e a analise.
+          sql_task:
+            warehouse_id: ${var.warehouse_id}
+            file:
+              path: ../src/gold/05-dimensoes.sql
+          depends_on:
+            - task_key: silver_clientes
+            - task_key: silver_pedidos
+            - task_key: silver_produtos_itens
+            - task_key: silver_crm_financeiro
+          max_retries: 0
+
+        - task_key: gold_fato_vendas
+          description: Contrato de vendas, uma linha por item de pedido, devolucao incluida como valor negativo, particionado por ano e mes.
+          sql_task:
+            warehouse_id: ${var.warehouse_id}
+            file:
+              path: ../src/gold/06-fato-vendas.sql
+          depends_on:
+            - task_key: gold_dimensoes
+          max_retries: 0
+
+        - task_key: gold_marts
+          description: Um mart por diretoria (comercial, produto, financeiro), todos fechando na mesma receita do fato.
+          sql_task:
+            warehouse_id: ${var.warehouse_id}
+            file:
+              path: ../src/gold/07-marts.sql
+          depends_on:
+            - task_key: gold_fato_vendas
+          max_retries: 0
+
+        - task_key: testes
+          description: Os 9 testes de qualidade que interrompem o job quando alguma transformacao divergir da silver.
+          sql_task:
+            warehouse_id: ${var.warehouse_id}
+            file:
+              path: ../src/gold/08-testes.sql
+          depends_on:
+            - task_key: gold_marts
+          max_retries: 0
