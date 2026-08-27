@@ -1,0 +1,769 @@
+{
+  "datasets": [
+    {
+      "name": "ds_comercial",
+      "displayName": "Vendas",
+      "queryLines": [
+        "SELECT\n",
+        "  data_pedido,\n",
+        "  ano,\n",
+        "  canal,\n",
+        "  segmento,\n",
+        "  cidade,\n",
+        "  marca,\n",
+        "  categoria,\n",
+        "  pedido_id,\n",
+        "  razao_social,\n",
+        "  receita,\n",
+        "  margem,\n",
+        "  custo\n",
+        "FROM fato_vendas"
+      ],
+      "columns": [
+        {
+          "displayName": "Receita",
+          "description": "Soma da receita da gold.fato_vendas. Nome canonicamente gerado por algo em um lugar so - nenhuma tela mostra numero diferente.",
+          "expression": "SUM(`receita`)"
+        },
+        {
+          "displayName": "Margem",
+          "description": "Soma da margem da gold.fato_vendas (receita menos custo).",
+          "expression": "SUM(`margem`)"
+        },
+        {
+          "displayName": "Pedidos",
+          "description": "Pedidos distintos no periodo.",
+          "expression": "COUNT(DISTINCT `pedido_id`)"
+        },
+        {
+          "displayName": "Ticket Medio",
+          "description": "Receita por pedido.",
+          "expression": "SUM(`receita`) / NULLIF(COUNT(DISTINCT `pedido_id`), 0)"
+        },
+        {
+          "displayName": "Margem Pct",
+          "description": "Margem percentual sobre a receita no grau escolhido pelo widget.",
+          "expression": "100 * SUM(`margem`) / NULLIF(SUM(`receita`), 0)"
+        }
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "comercial",
+      "displayName": "Comercial",
+      "layout": [
+        {
+          "widget": {
+            "name": "header",
+            "textbox_spec": "# Rota Perfume \u2014 Painel Comercial"
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_receita",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_comercial",
+                  "fields": [
+                    {
+                      "name": "measure(Receita)",
+                      "expression": "MEASURE('Receita')"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(Receita)",
+                  "displayName": "Receita",
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "BRL",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "title": "Receita total",
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 5,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_margem",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_comercial",
+                  "fields": [
+                    {
+                      "name": "measure(Margem)",
+                      "expression": "MEASURE('Margem')"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(Margem)",
+                  "displayName": "Margem",
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "BRL",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "title": "Margem total",
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 5,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_pedidos",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_comercial",
+                  "fields": [
+                    {
+                      "name": "measure(Pedidos)",
+                      "expression": "MEASURE('Pedidos')"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(Pedidos)",
+                  "displayName": "Pedidos",
+                  "format": {
+                    "type": "number",
+                    "abbreviation": "compact"
+                  }
+                }
+              },
+              "frame": {
+                "title": "N\u00famero de pedidos",
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 5,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_ticket",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_comercial",
+                  "fields": [
+                    {
+                      "name": "measure(Ticket Medio)",
+                      "expression": "MEASURE('Ticket Medio')"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(Ticket Medio)",
+                  "displayName": "Ticket M\u00e9dio",
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "BRL",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "title": "Ticket m\u00e9dio",
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 5,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "receita_por_mes",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_comercial",
+                  "fields": [
+                    {
+                      "name": "mes",
+                      "expression": "DATE_TRUNC('month', `data_pedido`)"
+                    },
+                    {
+                      "name": "measure(Receita)",
+                      "expression": "MEASURE('Receita')"
+                    }
+                  ],
+                  "disaggregated": false,
+                  "orders": [
+                    {
+                      "direction": "ASC",
+                      "expression": "DATE_TRUNC('month', `data_pedido`)"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "mes",
+                  "displayName": "M\u00eas",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "fieldName": "measure(Receita)",
+                  "displayName": "Receita",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "value": "#077A9D"
+                }
+              },
+              "frame": {
+                "title": "Receita por m\u00eas",
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 8,
+            "width": 8,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "top10_marcas",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_comercial",
+                  "fields": [
+                    {
+                      "name": "marca",
+                      "expression": "`marca`"
+                    },
+                    {
+                      "name": "measure(Receita)",
+                      "expression": "MEASURE('Receita')"
+                    }
+                  ],
+                  "disaggregated": false,
+                  "orders": [
+                    {
+                      "direction": "DESC",
+                      "expression": "MEASURE('Receita')"
+                    }
+                  ],
+                  "limit": 10
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "marca",
+                  "displayName": "Marca",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "value"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "measure(Receita)",
+                  "displayName": "Receita",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "frame": {
+                "title": "Top 10 marcas por receita",
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 8,
+            "width": 4,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "margem_por_categoria",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_comercial",
+                  "fields": [
+                    {
+                      "name": "categoria",
+                      "expression": "`categoria`"
+                    },
+                    {
+                      "name": "measure(Margem Pct)",
+                      "expression": "MEASURE('Margem Pct')"
+                    }
+                  ],
+                  "disaggregated": false,
+                  "orders": [
+                    {
+                      "direction": "ASC",
+                      "expression": "MEASURE('Margem Pct')"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "categoria",
+                  "displayName": "Categoria",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "value"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "measure(Margem Pct)",
+                  "displayName": "Margem %",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "mark": {
+                "colors": [
+                  "#FF7E5C",
+                  "#FFA600",
+                  "#FF3621"
+                ]
+              },
+              "frame": {
+                "title": "Margem percentual por categoria",
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 15,
+            "width": 5,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "receita_por_canal",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_comercial",
+                  "fields": [
+                    {
+                      "name": "canal",
+                      "expression": "`canal`"
+                    },
+                    {
+                      "name": "measure(Receita)",
+                      "expression": "MEASURE('Receita')"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "canal",
+                  "displayName": "Canal",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "measure(Receita)",
+                  "displayName": "Receita",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "frame": {
+                "title": "Receita por canal",
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 5,
+            "y": 15,
+            "width": 4,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "top20_clientes",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_comercial",
+                  "fields": [
+                    {
+                      "name": "razao_social",
+                      "expression": "`razao_social`"
+                    },
+                    {
+                      "name": "segmento",
+                      "expression": "`segmento`"
+                    },
+                    {
+                      "name": "cidade",
+                      "expression": "`cidade`"
+                    },
+                    {
+                      "name": "measure(Receita)",
+                      "expression": "MEASURE('Receita')"
+                    }
+                  ],
+                  "disaggregated": false,
+                  "orders": [
+                    {
+                      "direction": "DESC",
+                      "expression": "MEASURE('Receita')"
+                    }
+                  ],
+                  "limit": 20
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "razao_social",
+                    "displayName": "Cliente"
+                  },
+                  {
+                    "fieldName": "segmento",
+                    "displayName": "Segmento"
+                  },
+                  {
+                    "fieldName": "cidade",
+                    "displayName": "Cidade"
+                  },
+                  {
+                    "fieldName": "measure(Receita)",
+                    "displayName": "Receita",
+                    "format": {
+                      "type": "number-currency",
+                      "currencyCode": "BRL",
+                      "decimalPlaces": {
+                        "type": "max",
+                        "places": 2
+                      }
+                    }
+                  }
+                ]
+              },
+              "itemsPerPage": 20,
+              "paginationSize": "default",
+              "frame": {
+                "title": "Top 20 clientes por receita",
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 15,
+            "width": 3,
+            "height": 9
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "filtros",
+      "displayName": "Filtros",
+      "layout": [
+        {
+          "widget": {
+            "name": "filtro_ano",
+            "queries": [
+              {
+                "name": "q_ano",
+                "query": {
+                  "datasetName": "ds_comercial",
+                  "fields": [
+                    {
+                      "name": "ano",
+                      "expression": "`ano`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "ano",
+                    "queryName": "q_ano",
+                    "displayName": "Ano"
+                  }
+                ]
+              },
+              "frame": {
+                "title": "Ano",
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 4,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "filtro_segmento",
+            "queries": [
+              {
+                "name": "q_segmento",
+                "query": {
+                  "datasetName": "ds_comercial",
+                  "fields": [
+                    {
+                      "name": "segmento",
+                      "expression": "`segmento`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "segmento",
+                    "queryName": "q_segmento",
+                    "displayName": "Segmento"
+                  }
+                ]
+              },
+              "frame": {
+                "title": "Segmento",
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 0,
+            "width": 4,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "filtro_cidade",
+            "queries": [
+              {
+                "name": "q_cidade",
+                "query": {
+                  "datasetName": "ds_comercial",
+                  "fields": [
+                    {
+                      "name": "cidade",
+                      "expression": "`cidade`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "cidade",
+                    "queryName": "q_cidade",
+                    "displayName": "Cidade"
+                  }
+                ]
+              },
+              "frame": {
+                "title": "Cidade",
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 0,
+            "width": 4,
+            "height": 2
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_GLOBAL_FILTERS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "canvasBackgroundColor": {
+        "light": "#F5F7FA",
+        "dark": "#141A20"
+      },
+      "widgetBackgroundColor": {
+        "light": "#FFFFFF",
+        "dark": "#1B232B"
+      },
+      "widgetBorderColor": {
+        "light": "#E3E8EF",
+        "dark": "#27313B"
+      },
+      "fontColor": {
+        "light": "#22303C",
+        "dark": "#E6EBF0"
+      },
+      "selectionColor": {
+        "light": "#077A9D",
+        "dark": "#FFAB00"
+      },
+      "visualizationColors": [
+        "#077A9D",
+        "#FFAB00",
+        "#00A972",
+        "#FF3621",
+        "#8BCAE7",
+        "#AB4057",
+        "#99DDB4",
+        "#FCA4A1"
+      ],
+      "widgetHeaderAlignment": "LEFT"
+    }
+  }
+}

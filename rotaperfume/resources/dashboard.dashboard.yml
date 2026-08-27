@@ -1,0 +1,23 @@
+# Dashboard comercial versionado como codigo (feature 05 / deploy 5).
+#
+# O dashboard nao e clicado no workspace: ele e um arquivo JSON (.lvdash.json)
+# declarado aqui como recurso do bundle, e sobe junto no deploy. Dashboard
+# clicado nao tem diff, nao tem revisao e nao tem rollback; este aqui, sim.
+#
+# O SQL dos datasets usa nome de tabela PURO (`FROM fato_vendas`): o catalogo
+# e o schema viam de dataset_catalog / dataset_schema (gold). Se prefixarmos
+# gold.fato_vendas, o biceps que gerencia o resolver dos datasets os IGNORA.
+#
+# Sem mode:development (ver databricks.yml): os schemas so mantem o nome certo
+# porque nao prefixamos o target. Mesma regra vale aqui.
+
+resources:
+  dashboards:
+    dashboard-comercial:
+      display_name: "Rota Perfume - Comercial"
+      file_path: ./dashboard-comercial.lvdash.json
+      warehouse_id: ${var.warehouse_id}
+      # Onde o dataset da leitura resolve: fatos limpos, prontos para dashboard.
+      # Nunca prefixar o nome da tabela no SQL do .lvdash.json com estes valores.
+      dataset_catalog: ${var.catalog}
+      dataset_schema: gold
