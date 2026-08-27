@@ -14,21 +14,23 @@
         "  categoria,\n",
         "  pedido_id,\n",
         "  razao_social,\n",
-        "  receita,\n",
-        "  margem,\n",
-        "  custo\n",
+        "  receita AS receita_linha,\n",
+        "  margem AS margem_linha,\n",
+        "  custo AS custo_linha\n",
         "FROM fato_vendas"
       ],
+      "catalog": "lakehouse_rotaperfume",
+      "schema": "gold",
       "columns": [
         {
           "displayName": "Receita",
           "description": "Soma da receita da gold.fato_vendas. Nome canonicamente gerado por algo em um lugar so - nenhuma tela mostra numero diferente.",
-          "expression": "SUM(`receita`)"
+          "expression": "SUM(`receita_linha`)"
         },
         {
           "displayName": "Margem",
           "description": "Soma da margem da gold.fato_vendas (receita menos custo).",
-          "expression": "SUM(`margem`)"
+          "expression": "SUM(`margem_linha`)"
         },
         {
           "displayName": "Pedidos",
@@ -38,12 +40,12 @@
         {
           "displayName": "Ticket Medio",
           "description": "Receita por pedido.",
-          "expression": "SUM(`receita`) / NULLIF(COUNT(DISTINCT `pedido_id`), 0)"
+          "expression": "SUM(`receita_linha`) / NULLIF(COUNT(DISTINCT `pedido_id`), 0)"
         },
         {
           "displayName": "Margem Pct",
           "description": "Margem percentual sobre a receita no grau escolhido pelo widget.",
-          "expression": "100 * SUM(`margem`) / NULLIF(SUM(`receita`), 0)"
+          "expression": "100 * SUM(`margem_linha`) / NULLIF(SUM(`receita_linha`), 0)"
         }
       ]
     }
@@ -76,7 +78,7 @@
                   "fields": [
                     {
                       "name": "measure(Receita)",
-                      "expression": "MEASURE('Receita')"
+                      "expression": "MEASURE(`Receita`)"
                     }
                   ],
                   "disaggregated": false
@@ -125,7 +127,7 @@
                   "fields": [
                     {
                       "name": "measure(Margem)",
-                      "expression": "MEASURE('Margem')"
+                      "expression": "MEASURE(`Margem`)"
                     }
                   ],
                   "disaggregated": false
@@ -174,7 +176,7 @@
                   "fields": [
                     {
                       "name": "measure(Pedidos)",
-                      "expression": "MEASURE('Pedidos')"
+                      "expression": "MEASURE(`Pedidos`)"
                     }
                   ],
                   "disaggregated": false
@@ -218,7 +220,7 @@
                   "fields": [
                     {
                       "name": "measure(Ticket Medio)",
-                      "expression": "MEASURE('Ticket Medio')"
+                      "expression": "MEASURE(`Ticket Medio`)"
                     }
                   ],
                   "disaggregated": false
@@ -270,7 +272,7 @@
                     },
                     {
                       "name": "measure(Receita)",
-                      "expression": "MEASURE('Receita')"
+                      "expression": "MEASURE(`Receita`)"
                     }
                   ],
                   "disaggregated": false,
@@ -333,17 +335,10 @@
                     },
                     {
                       "name": "measure(Receita)",
-                      "expression": "MEASURE('Receita')"
+                      "expression": "MEASURE(`Receita`)"
                     }
                   ],
-                  "disaggregated": false,
-                  "orders": [
-                    {
-                      "direction": "DESC",
-                      "expression": "MEASURE('Receita')"
-                    }
-                  ],
-                  "limit": 10
+                  "disaggregated": false
                 }
               }
             ],
@@ -397,16 +392,10 @@
                     },
                     {
                       "name": "measure(Margem Pct)",
-                      "expression": "MEASURE('Margem Pct')"
+                      "expression": "MEASURE(`Margem Pct`)"
                     }
                   ],
-                  "disaggregated": false,
-                  "orders": [
-                    {
-                      "direction": "ASC",
-                      "expression": "MEASURE('Margem Pct')"
-                    }
-                  ]
+                  "disaggregated": false
                 }
               }
             ],
@@ -467,7 +456,7 @@
                     },
                     {
                       "name": "measure(Receita)",
-                      "expression": "MEASURE('Receita')"
+                      "expression": "MEASURE(`Receita`)"
                     }
                   ],
                   "disaggregated": false
@@ -529,17 +518,10 @@
                     },
                     {
                       "name": "measure(Receita)",
-                      "expression": "MEASURE('Receita')"
+                      "expression": "MEASURE(`Receita`)"
                     }
                   ],
-                  "disaggregated": false,
-                  "orders": [
-                    {
-                      "direction": "DESC",
-                      "expression": "MEASURE('Receita')"
-                    }
-                  ],
-                  "limit": 20
+                  "disaggregated": false
                 }
               }
             ],
