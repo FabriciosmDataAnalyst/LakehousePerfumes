@@ -1,0 +1,693 @@
+{
+  "version": 2,
+  "config": {
+    "sample_questions": [
+      {
+        "id": "1526efa2e59e34985bd673a3c0e3c481",
+        "question": [
+          "Quais clientes pararam de comprar há mais de 90 dias?"
+        ]
+      },
+      {
+        "id": "2dc88c86e16bd4bac5a683b23c1c509f",
+        "question": [
+          "Quais marcas ficaram mais tempo sem estoque?"
+        ]
+      },
+      {
+        "id": "5629a90cab4f7996a140fa609b4a00b0",
+        "question": [
+          "Um produto lançado vende mais nos primeiros 120 dias?"
+        ]
+      },
+      {
+        "id": "5827d6b8f285ed45c00c6b89b89c0615",
+        "question": [
+          "Qual categoria vende muito e ganha pouco?"
+        ]
+      },
+      {
+        "id": "d7982c738caa712f65c6bf1de6dd0a44",
+        "question": [
+          "Dezembro foi um mês ruim para a receita?"
+        ]
+      },
+      {
+        "id": "e7efb0ebdabb9ac45d7c9a8553462f85",
+        "question": [
+          "Quais marcas mais venderam nos últimos 6 meses?"
+        ]
+      }
+    ]
+  },
+  "data_sources": {
+    "tables": [
+      {
+        "identifier": "lakehouse_rotaperfume.gold.clientes_em_risco",
+        "description": [
+          "Clientes sem compra ha mais de 90 dias e quanto compravam por mes. Responde \"quem parou de comprar e quanto isso custa?\"."
+        ],
+        "column_configs": [
+          {
+            "column_name": "cidade",
+            "description": [
+              "Cidade"
+            ]
+          },
+          {
+            "column_name": "cliente_id",
+            "description": [
+              "Id do cliente"
+            ]
+          },
+          {
+            "column_name": "data_ultimo_pedido",
+            "description": [
+              "Data do ultimo pedido nao cancelado"
+            ]
+          },
+          {
+            "column_name": "dias_sem_comprar",
+            "description": [
+              "Dias desde o ultimo pedido nao cancelado; sempre acima de 90"
+            ]
+          },
+          {
+            "column_name": "meses_comprados",
+            "description": [
+              "Meses distintos em que o cliente comprou"
+            ]
+          },
+          {
+            "column_name": "razao_social",
+            "description": [
+              "Razao social"
+            ]
+          },
+          {
+            "column_name": "receita_media_mensal",
+            "description": [
+              "Quanto o cliente comprava por mes antes de sumir"
+            ]
+          },
+          {
+            "column_name": "segmento",
+            "description": [
+              "Segmento"
+            ]
+          }
+        ]
+      },
+      {
+        "identifier": "lakehouse_rotaperfume.gold.dim_calendario",
+        "description": [
+          "Calendario de dias da janela de dados com a coluna de pico sazonal do setor (mes_pico_setor)."
+        ],
+        "column_configs": [
+          {
+            "column_name": "ano",
+            "description": [
+              "Ano"
+            ]
+          },
+          {
+            "column_name": "data",
+            "description": [
+              "Dia"
+            ]
+          },
+          {
+            "column_name": "mes",
+            "description": [
+              "Mes"
+            ]
+          },
+          {
+            "column_name": "mes_pico_setor",
+            "description": [
+              "PICO do setor: abril, junho e outubro (o varejo compra antes da data comemorativa). Dezembro e janeiro sao VALE esperado, nao queda"
+            ]
+          },
+          {
+            "column_name": "nome_mes",
+            "description": [
+              "Nome do mes"
+            ]
+          }
+        ]
+      },
+      {
+        "identifier": "lakehouse_rotaperfume.gold.dim_cliente",
+        "description": [
+          "Cadastro de clientes com indicadores de compra (ultimo pedido, dias sem comprar, receita acumulada) para analise de cadencia e churn."
+        ],
+        "column_configs": [
+          {
+            "column_name": "cidade",
+            "description": [
+              "Cidade"
+            ]
+          },
+          {
+            "column_name": "cliente_id",
+            "description": [
+              "Id do cliente"
+            ]
+          },
+          {
+            "column_name": "dias_sem_comprar",
+            "description": [
+              "Dias desde o ultimo pedido nao cancelado; NULL se nunca comprou. Usado na analise de cadencia e churn (90 dias)"
+            ]
+          },
+          {
+            "column_name": "razao_social",
+            "description": [
+              "Razao social"
+            ]
+          },
+          {
+            "column_name": "receita_acumulada",
+            "description": [
+              "Receita total dos pedidos nao cancelados do cliente"
+            ]
+          },
+          {
+            "column_name": "segmento",
+            "description": [
+              "Segmento (varejo, atacado, etc)"
+            ]
+          },
+          {
+            "column_name": "total_pedidos",
+            "description": [
+              "Pedidos nao cancelados do cliente"
+            ]
+          },
+          {
+            "column_name": "uf",
+            "description": [
+              "Estado (UF)"
+            ]
+          }
+        ]
+      },
+      {
+        "identifier": "lakehouse_rotaperfume.gold.dim_produto",
+        "description": [
+          "Cadastro de produtos: marca, categoria, nota olfativa, custo, preco e data de lancamento."
+        ],
+        "column_configs": [
+          {
+            "column_name": "categoria",
+            "description": [
+              "Categoria"
+            ]
+          },
+          {
+            "column_name": "custo_unitario",
+            "description": [
+              "Custo unitario"
+            ]
+          },
+          {
+            "column_name": "data_lancamento",
+            "description": [
+              "Data de lancamento; usada no efeito de lancamento (120 dias)"
+            ]
+          },
+          {
+            "column_name": "descontinuado",
+            "description": [
+              "true quando o produto nao e mais vendido"
+            ]
+          },
+          {
+            "column_name": "descricao",
+            "description": [
+              "Descricao do produto"
+            ]
+          },
+          {
+            "column_name": "marca",
+            "description": [
+              "Marca"
+            ]
+          },
+          {
+            "column_name": "nota_olfativa",
+            "description": [
+              "Nota olfativa"
+            ]
+          },
+          {
+            "column_name": "preco_tabela",
+            "description": [
+              "Preco de tabela"
+            ]
+          },
+          {
+            "column_name": "sku",
+            "description": [
+              "Codigo do produto (uma linha por apresentacao)"
+            ]
+          }
+        ]
+      },
+      {
+        "identifier": "lakehouse_rotaperfume.gold.dim_vendedor",
+        "description": [
+          "Cadastro de vendedores com regiao e meta mensal para calculo de atingimento."
+        ],
+        "column_configs": [
+          {
+            "column_name": "ativo",
+            "description": [
+              "true quando o vendedor nao tem data de desligamento"
+            ]
+          },
+          {
+            "column_name": "meta_mensal",
+            "description": [
+              "Meta mensal para calcular atingimento"
+            ]
+          },
+          {
+            "column_name": "nome",
+            "description": [
+              "Nome do vendedor"
+            ]
+          },
+          {
+            "column_name": "regiao",
+            "description": [
+              "Regiao do vendedor"
+            ]
+          },
+          {
+            "column_name": "uf",
+            "description": [
+              "Estado (UF)"
+            ]
+          },
+          {
+            "column_name": "vendedor_id",
+            "description": [
+              "Id do vendedor"
+            ]
+          }
+        ]
+      },
+      {
+        "identifier": "lakehouse_rotaperfume.gold.efeito_lancamento",
+        "description": [
+          "Receita dos SKUs nos 120 dias apos o lancamento contra o resto do periodo. Responde \"lancamento gera empurrao de venda?\"."
+        ],
+        "column_configs": [
+          {
+            "column_name": "data_lancamento",
+            "description": [
+              "Data oficial de lancamento"
+            ]
+          },
+          {
+            "column_name": "descricao",
+            "description": [
+              "Descricao do produto"
+            ]
+          },
+          {
+            "column_name": "marca",
+            "description": [
+              "Marca"
+            ]
+          },
+          {
+            "column_name": "receita_lancamento_pct",
+            "description": [
+              "Percentual da receita total que veio do periodo de lancamento"
+            ]
+          },
+          {
+            "column_name": "receita_periodo_lancamento",
+            "description": [
+              "Receita nos primeiros 120 dias apos o lancamento"
+            ]
+          },
+          {
+            "column_name": "receita_restante",
+            "description": [
+              "Receita fora da janela de 120 dias do lancamento"
+            ]
+          },
+          {
+            "column_name": "sku",
+            "description": [
+              "Codigo do produto lancado"
+            ]
+          }
+        ]
+      },
+      {
+        "identifier": "lakehouse_rotaperfume.gold.fato_vendas",
+        "description": [
+          "Contrato de vendas da empresa: uma linha por item de pedido, com devolucao incluida como valor negativo. Base para quase todas as metricas de receita, margem e volume."
+        ],
+        "column_configs": [
+          {
+            "column_name": "_processado_em",
+            "description": [
+              "Quando a linha foi gravada no fato"
+            ]
+          },
+          {
+            "column_name": "ano",
+            "description": [
+              "Ano da venda"
+            ]
+          },
+          {
+            "column_name": "canal",
+            "description": [
+              "Canal de venda (E-commerce, Loja, etc)"
+            ]
+          },
+          {
+            "column_name": "categoria",
+            "description": [
+              "Categoria do produto"
+            ]
+          },
+          {
+            "column_name": "cidade",
+            "description": [
+              "Cidade do cliente"
+            ]
+          },
+          {
+            "column_name": "cliente_id",
+            "description": [
+              "Id do cliente comprador"
+            ]
+          },
+          {
+            "column_name": "custo",
+            "description": [
+              "Custo: quantidade * custo_unitario do produto"
+            ]
+          },
+          {
+            "column_name": "data_pedido",
+            "description": [
+              "Data do pedido; o agente usa ano/mes ja modelados, sem CAST"
+            ]
+          },
+          {
+            "column_name": "devolucao",
+            "description": [
+              "true quando o item e devolucao (quantidade negativa). Para o bruto vendido, filtre devolucao = false"
+            ]
+          },
+          {
+            "column_name": "marca",
+            "description": [
+              "Marca do produto"
+            ]
+          },
+          {
+            "column_name": "margem",
+            "description": [
+              "Margem: receita menos custo. NAO considera desconto comercial nem frete"
+            ]
+          },
+          {
+            "column_name": "mes",
+            "description": [
+              "Mes da venda (1-12)"
+            ]
+          },
+          {
+            "column_name": "nota_olfativa",
+            "description": [
+              "Nota olfativa do produto"
+            ]
+          },
+          {
+            "column_name": "pedido_id",
+            "description": [
+              "Identificador do pedido (granularidade de item)"
+            ]
+          },
+          {
+            "column_name": "preco_praticado",
+            "description": [
+              "Preco efetivamente praticado no item"
+            ]
+          },
+          {
+            "column_name": "quantidade",
+            "description": [
+              "Quantidade (negativa = devolucao)"
+            ]
+          },
+          {
+            "column_name": "razao_social",
+            "description": [
+              "Razao social do cliente"
+            ]
+          },
+          {
+            "column_name": "receita",
+            "description": [
+              "Receita: quantidade * preco_praticado. Inclui devolucao como valor negativo"
+            ]
+          },
+          {
+            "column_name": "segmento",
+            "description": [
+              "Segmento do cliente (varejo, atacado, etc)"
+            ]
+          },
+          {
+            "column_name": "sku",
+            "description": [
+              "Codigo do produto vendido"
+            ]
+          },
+          {
+            "column_name": "vendedor_id",
+            "description": [
+              "Id do vendedor responsavel"
+            ]
+          }
+        ]
+      },
+      {
+        "identifier": "lakehouse_rotaperfume.gold.margem_por_categoria",
+        "description": [
+          "Receita, margem e margem percentual por categoria. Responde \"qual categoria vende muito e ganha pouco?\"."
+        ],
+        "column_configs": [
+          {
+            "column_name": "categoria",
+            "description": [
+              "Categoria do produto"
+            ]
+          },
+          {
+            "column_name": "margem",
+            "description": [
+              "Margem total da categoria"
+            ]
+          },
+          {
+            "column_name": "margem_pct",
+            "description": [
+              "Margem percentual: 100 * margem / receita"
+            ]
+          },
+          {
+            "column_name": "receita",
+            "description": [
+              "Receita total da categoria, devolucao incluida como negativa"
+            ]
+          }
+        ]
+      },
+      {
+        "identifier": "lakehouse_rotaperfume.gold.ranking_marcas",
+        "description": [
+          "Ranking de marcas por receita, margem percentual e participacao. Responde \"quais marcas estao vendendo?\"."
+        ],
+        "column_configs": [
+          {
+            "column_name": "marca",
+            "description": [
+              "Marca do produto"
+            ]
+          },
+          {
+            "column_name": "margem_pct",
+            "description": [
+              "Margem percentual: 100 * margem / receita"
+            ]
+          },
+          {
+            "column_name": "participacao_pct",
+            "description": [
+              "Participacao da marca na receita total"
+            ]
+          },
+          {
+            "column_name": "receita",
+            "description": [
+              "Receita total da marca, devolucao incluida como negativa"
+            ]
+          }
+        ]
+      },
+      {
+        "identifier": "lakehouse_rotaperfume.gold.receita_mensal",
+        "description": [
+          "Receita, margem e pedidos por mes, com a marca de pico do setor. Responde \"como foi a receita do mes/ano?\" e \"dezembro foi um mes ruim?\"."
+        ],
+        "column_configs": [
+          {
+            "column_name": "ano",
+            "description": [
+              "Ano da venda"
+            ]
+          },
+          {
+            "column_name": "margem",
+            "description": [
+              "Soma de margem do mes"
+            ]
+          },
+          {
+            "column_name": "mes",
+            "description": [
+              "Mes da venda (1-12)"
+            ]
+          },
+          {
+            "column_name": "mes_pico_setor",
+            "description": [
+              "true em abril, junho e outubro: picos do setor. Dezembro e janeiro sao VALE, nao queda"
+            ]
+          },
+          {
+            "column_name": "pedidos",
+            "description": [
+              "Pedidos distintos (nao cancelados) no mes"
+            ]
+          },
+          {
+            "column_name": "receita",
+            "description": [
+              "Soma de receita do mes, devolucao incluida como negativa"
+            ]
+          }
+        ]
+      },
+      {
+        "identifier": "lakehouse_rotaperfume.gold.ruptura_por_marca",
+        "description": [
+          "Percentual de snapshots diarios em que a marca ficou sem estoque. Responde \"em qual marca a venda esta escapando por falta de estoque?\"."
+        ],
+        "column_configs": [
+          {
+            "column_name": "marca",
+            "description": [
+              "Marca do produto"
+            ]
+          },
+          {
+            "column_name": "ruptura_pct",
+            "description": [
+              "Percentual dos snapshots em ruptura"
+            ]
+          },
+          {
+            "column_name": "snapshots",
+            "description": [
+              "Snapshots diarios de estoque da marca"
+            ]
+          },
+          {
+            "column_name": "snapshots_em_ruptura",
+            "description": [
+              "Snapshots em que algum SKU da marca estava com saldo zero"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "instructions": {
+    "text_instructions": [
+      {
+        "id": "182a0239adc2d72c88977d578c058c79",
+        "content": [
+          "Você é o agente de dados da **Rota do Perfume**, uma distribuidora B2B de\nperfumaria árabe que vende para o varejo (lojas e revendas). Você responde\nperguntas de negócio lendo exclusivamente as tabelas da camada **gold** do\ncatálogo `lakehouse_rotaperfume`. NUNCA use a `bronze` nem a `silver`: essas\ncamadas são intermediárias e não estão prontas para responder perguntas da\ndiretoria. Se um dado não estiver na gold, diga que não tem acesso e não\ninvente resposta.\n\n### Glossário\n\n- **Ruptura**: estoque zerado de um SKU em um snapshot diário. Venda perdida.\n- **Carteira**: relacionamento comercial vendedor × cliente (quem atende quem).\n- **Oportunidade**: negociação em andamento; fechada em \"ganho\" ou \"perdida\".\n- **Devolução**: item devolvido pelo varejo. Entra nas métricas com valor\n  **negativo**. Para ver o bruto vendido, filtre `devolucao = false`.\n- **SKU**: código do produto (uma linha por apresentação).\n- **Segmento**: perfil do cliente (varejo, atacado, etc.).\n- **Atingimento de meta**: quanto o vendedor vendeu sobre a meta mensal\n  (`100 * receita / meta`).\n- **Curva ABC**: classificação de produtos por receita acumulada — A (até 70%),\n  B (até 90%), C (resto).\n\n### REGRA DE SAZONALIDADE — a mais importante\n\nO setor de perfumaria distribui para o varejo, e o varejo abastece **antes**\nda data comemorativa. Por isso **o pico de vendas acontece no mês ANTERIOR à\ndata**, nunca no próprio mês:\n\n- **Abril** — Dia das Mães (pico)\n- **Junho** — Dia dos Namorados (pico)\n- **Outubro** — Black Friday / Dia das Crianças (pico)\n- **Dezembro e Janeiro** — **VALE**. É esperado ter receita menor nesses meses,\n  porque o varejo já está abastecido após os picos. **Nunca chame dezembro ou\n  janeiro de \"queda\" nem de \"mês ruim\"**: é o vale natural do setor e é\n  saudável. Quando o usuário perguntar se dezembro foi ruim, responda que não —\n  é o vale esperado da série.\n\n### Regra de cálculo de cada métrica\n\n- **Receita**: `SUM(receita)` da `gold.fato_vendas` (já inclui devolução como\n  valor negativo).\n- **Margem**: `receita - custo` por item; margem percentual = `100 * margem / receita`.\n- **Ticket médio**: `receita / pedidos distintos`.\n- **Atingimento**: `100 * receita / meta` no grau vendedor × mês.\n- **Churn / cliente em risco**: cliente sem nenhuma compra há mais de **90\n  dias** (view `gold.clientes_em_risco`).\n\n### Views de negócio (prefira sempre estas)\n\n- `gold.receita_mensal` — receita e margem por mês, com os meses de pico do setor.\n- `gold.ranking_marcas` — receita, margem % e participação % por marca.\n- `gold.margem_por_categoria` — receita, margem e margem % por categoria.\n- `gold.clientes_em_risco` — clientes sem compra há mais de 90 dias.\n- `gold.efeito_lancamento` — receita dos SKUs nos 120 dias após o lançamento.\n- `gold.ruptura_por_marca` — % de snapshots em ruptura por marca.\n\nResponda em português. Quando precisar de data, use o ano/mês já modelados nas\ncolunas `ano` e `mes` (nunca faça `CAST` nem `try_to_date`: a gold já saiu limpa)."
+        ]
+      }
+    ],
+    "example_question_sqls": [
+      {
+        "id": "1526efa2e59e34985bd673a3c0e3c481",
+        "question": [
+          "Quais clientes pararam de comprar há mais de 90 dias?"
+        ],
+        "sql": [
+          "SELECT razao_social, segmento, cidade, dias_sem_comprar, receita_media_mensal\nFROM lakehouse_rotaperfume.gold.clientes_em_risco\nORDER BY receita_media_mensal DESC LIMIT 20"
+        ]
+      },
+      {
+        "id": "5629a90cab4f7996a140fa609b4a00b0",
+        "question": [
+          "Um produto lançado vende mais nos primeiros 120 dias?"
+        ],
+        "sql": [
+          "SELECT marca, descricao, receita_periodo_lancamento, receita_restante, receita_lancamento_pct\nFROM lakehouse_rotaperfume.gold.efeito_lancamento\nORDER BY receita_lancamento_pct DESC LIMIT 20"
+        ]
+      },
+      {
+        "id": "57083182c4d837bf814c0991407bba02",
+        "question": [
+          "Qual foi a receita mensal e quais meses são pico do setor?"
+        ],
+        "sql": [
+          "SELECT ano, mes, mes_pico_setor, receita, margem, pedidos\nFROM lakehouse_rotaperfume.gold.receita_mensal\nORDER BY ano, mes"
+        ]
+      },
+      {
+        "id": "6fe174cfcd72d22efafaf6151b2b946a",
+        "question": [
+          "Qual categoria tem a maior margem percentual?"
+        ],
+        "sql": [
+          "SELECT categoria, receita, margem, margem_pct\nFROM lakehouse_rotaperfume.gold.margem_por_categoria\nORDER BY margem_pct"
+        ]
+      },
+      {
+        "id": "c24c1a4e0f4ea1e3d0b75be42a467707",
+        "question": [
+          "Quais marcas mais vezes ficaram sem estoque?"
+        ],
+        "sql": [
+          "SELECT marca, snapshots, snapshots_em_ruptura, ruptura_pct\nFROM lakehouse_rotaperfume.gold.ruptura_por_marca\nORDER BY ruptura_pct DESC"
+        ]
+      },
+      {
+        "id": "e7efb0ebdabb9ac45d7c9a8553462f85",
+        "question": [
+          "Quais marcas mais venderam nos últimos 6 meses?"
+        ],
+        "sql": [
+          "SELECT marca, ROUND(SUM(receita)/1e6, 1) AS receita_mi\nFROM lakehouse_rotaperfume.gold.fato_vendas\nWHERE data_pedido >= add_months(current_date(), -6)\nGROUP BY marca ORDER BY receita_mi DESC LIMIT 5"
+        ]
+      }
+    ]
+  }
+}

@@ -37,7 +37,7 @@ CREATE OR REPLACE TABLE lakehouse_rotaperfume.gold.fato_vendas (
   custo            DECIMAL(18,2) COMMENT 'quantidade * custo_unitario do produto. Negativo junto com a devolucao',
   margem           DECIMAL(18,2) COMMENT 'Receita menos custo do produto. NAO considera desconto comercial nem frete',
   devolucao        BOOLEAN  COMMENT 'true quando o item e devolucao (quantidade negativa). NAO filtrar aqui: use SUM(...) FILTER (WHERE NOT devolucao) para ver so o bruto',
-  _processado_em   TIMESTAMP
+  _processado_em   TIMESTAMP COMMENT 'Quando a linha do fato foi gravada'
 )
 USING DELTA
 PARTITIONED BY (ano, mes)
