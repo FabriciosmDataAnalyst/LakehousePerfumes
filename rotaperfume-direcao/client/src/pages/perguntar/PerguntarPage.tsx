@@ -25,19 +25,21 @@ export function PerguntarPage() {
   }, []);
 
   return (
-    <div className="space-y-6 w-full max-w-5xl mx-auto flex flex-col">
-      <header className="flex items-center justify-between gap-4 flex-wrap">
-        <div>
-          <h2 className="text-2xl font-bold text-foreground">Perguntar</h2>
-          <p className="text-sm text-muted-foreground mt-1">
+    <div className="space-y-8">
+      <header className="flex items-end justify-between gap-4 flex-wrap">
+        <div className="space-y-1">
+          <h2 className="text-3xl font-bold tracking-tight text-foreground">
+            Perguntar
+          </h2>
+          <p className="text-sm text-muted-foreground">
             Pergunte em linguagem natural à direção — o agente lê a gold e
             responde com números.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 rounded-md border bg-muted/30 px-3 py-1.5">
           <Badge variant="secondary">Conectado como</Badge>
           {email ? (
-            <span className="text-sm font-medium">{email}</span>
+            <span className="text-sm font-medium text-foreground">{email}</span>
           ) : erroEmail ? (
             <span className="text-sm text-destructive">{erroEmail}</span>
           ) : (
@@ -55,7 +57,7 @@ export function PerguntarPage() {
         </AlertDescription>
       </Alert>
 
-      <div className="h-[min(620px,72vh)] border rounded-lg overflow-hidden">
+      <div className="h-[min(620px,72vh)] rounded-lg border shadow-sm overflow-hidden">
         <GenieChat alias="default" />
       </div>
     </div>

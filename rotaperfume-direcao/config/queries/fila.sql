@@ -27,6 +27,7 @@ SELECT
   f.ticket_medio,
   f.motivo,
   f.sugestao,
+  CAST(f._gerada_em AS DATE) AS referencia,
   r.status AS ultimo_status,
   r.registrado_em AS ultimo_retorno_em,
   r.comentario AS ultimo_comentario

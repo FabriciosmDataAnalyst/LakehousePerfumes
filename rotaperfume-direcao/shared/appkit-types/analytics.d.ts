@@ -57,6 +57,8 @@ declare module "@databricks/appkit-ui/react" {
           motivo: string;
           /** SKU a sugerir: o mais comprado do cliente na marca preferida que ele NAO comprou nos ultimos 90 dias, com o saldo do snapshot mais recente de estoque */
           sugestao: string;
+          /** @sqlType DATE */
+          referencia: string;
           /** Resultado registrado apos a ligacao: vendeu, vai_pensar, sem_interesse ou nao_atendeu */
           ultimo_status: string;
           /** Quando o registro foi gravado no sistema */
