@@ -483,6 +483,80 @@
         ]
       },
       {
+        "identifier": "lakehouse_rotaperfume.gold.fila_semanal",
+        "description": [
+          "A fila da semana: os 200 clientes a abordar, top do score entre os elegiveis (carteira vigente e vendedor ativo), com a posicao de cada um na carteira do seu vendedor, motivo em portugues e sugestao de produto com saldo. Responde \"quais clientes ligar essa semana\"."
+        ],
+        "column_configs": [
+          {
+            "column_name": "cidade",
+            "description": [
+              "Cidade do cliente"
+            ]
+          },
+          {
+            "column_name": "cliente_id",
+            "description": [
+              "Id do cliente"
+            ]
+          },
+          {
+            "column_name": "faixa",
+            "description": [
+              "Faixa do score (Fria, Morna, Quente, Muito quente)"
+            ]
+          },
+          {
+            "column_name": "motivo",
+            "description": [
+              "Motivo da indicacao em portugues, com os numeros reais do cliente"
+            ]
+          },
+          {
+            "column_name": "ordem",
+            "description": [
+              "Posicao do cliente na fila do seu vendedor (1 = maior score da carteira dele)"
+            ]
+          },
+          {
+            "column_name": "razao_social",
+            "description": [
+              "Razao social do cliente"
+            ]
+          },
+          {
+            "column_name": "score",
+            "description": [
+              "Nota de propensao a compra do modelo, entre 0 e 1"
+            ]
+          },
+          {
+            "column_name": "sugestao",
+            "description": [
+              "SKU a sugerir: o mais comprado na marca preferida que o cliente nao comprou nos ultimos 90 dias, com o saldo do snapshot mais recente"
+            ]
+          },
+          {
+            "column_name": "ticket_medio",
+            "description": [
+              "Ticket medio historico do cliente, em R$"
+            ]
+          },
+          {
+            "column_name": "uf",
+            "description": [
+              "Estado (UF) do cliente"
+            ]
+          },
+          {
+            "column_name": "vendedor",
+            "description": [
+              "Nome do vendedor responsavel pela carteira do cliente"
+            ]
+          }
+        ]
+      },
+      {
         "identifier": "lakehouse_rotaperfume.gold.margem_por_categoria",
         "description": [
           "Receita, margem e margem percentual por categoria. Responde \"qual categoria vende muito e ganha pouco?\"."
@@ -621,15 +695,47 @@
             ]
           }
         ]
+      },
+      {
+        "identifier": "lakehouse_rotaperfume.gold.score_propensao",
+        "description": [
+          "Nota de propensao a compra de cada cliente: o score (0 a 1), a faixa, a versao do modelo e a data de referencia. E a fonte que ordena a fila da semana - nunca invente score."
+        ],
+        "column_configs": [
+          {
+            "column_name": "cliente_id",
+            "description": [
+              "Id do cliente"
+            ]
+          },
+          {
+            "column_name": "faixa",
+            "description": [
+              "Faixa do score (Fria, Morna, Quente, Muito quente)"
+            ]
+          },
+          {
+            "column_name": "score",
+            "description": [
+              "Nota de propensao a compra do modelo, entre 0 e 1"
+            ]
+          },
+          {
+            "column_name": "versao",
+            "description": [
+              "Versao do modelo que gerou o score"
+            ]
+          }
+        ]
       }
     ]
   },
   "instructions": {
     "text_instructions": [
       {
-        "id": "182a0239adc2d72c88977d578c058c79",
+        "id": "2a653f2db8894c0fa816379233f0739d",
         "content": [
-          "Você é o agente de dados da **Rota do Perfume**, uma distribuidora B2B de\nperfumaria árabe que vende para o varejo (lojas e revendas). Você responde\nperguntas de negócio lendo exclusivamente as tabelas da camada **gold** do\ncatálogo `lakehouse_rotaperfume`. NUNCA use a `bronze` nem a `silver`: essas\ncamadas são intermediárias e não estão prontas para responder perguntas da\ndiretoria. Se um dado não estiver na gold, diga que não tem acesso e não\ninvente resposta.\n\n### Glossário\n\n- **Ruptura**: estoque zerado de um SKU em um snapshot diário. Venda perdida.\n- **Carteira**: relacionamento comercial vendedor × cliente (quem atende quem).\n- **Oportunidade**: negociação em andamento; fechada em \"ganho\" ou \"perdida\".\n- **Devolução**: item devolvido pelo varejo. Entra nas métricas com valor\n  **negativo**. Para ver o bruto vendido, filtre `devolucao = false`.\n- **SKU**: código do produto (uma linha por apresentação).\n- **Segmento**: perfil do cliente (varejo, atacado, etc.).\n- **Atingimento de meta**: quanto o vendedor vendeu sobre a meta mensal\n  (`100 * receita / meta`).\n- **Curva ABC**: classificação de produtos por receita acumulada — A (até 70%),\n  B (até 90%), C (resto).\n\n### REGRA DE SAZONALIDADE — a mais importante\n\nO setor de perfumaria distribui para o varejo, e o varejo abastece **antes**\nda data comemorativa. Por isso **o pico de vendas acontece no mês ANTERIOR à\ndata**, nunca no próprio mês:\n\n- **Abril** — Dia das Mães (pico)\n- **Junho** — Dia dos Namorados (pico)\n- **Outubro** — Black Friday / Dia das Crianças (pico)\n- **Dezembro e Janeiro** — **VALE**. É esperado ter receita menor nesses meses,\n  porque o varejo já está abastecido após os picos. **Nunca chame dezembro ou\n  janeiro de \"queda\" nem de \"mês ruim\"**: é o vale natural do setor e é\n  saudável. Quando o usuário perguntar se dezembro foi ruim, responda que não —\n  é o vale esperado da série.\n\n### Regra de cálculo de cada métrica\n\n- **Receita**: `SUM(receita)` da `gold.fato_vendas` (já inclui devolução como\n  valor negativo).\n- **Margem**: `receita - custo` por item; margem percentual = `100 * margem / receita`.\n- **Ticket médio**: `receita / pedidos distintos`.\n- **Atingimento**: `100 * receita / meta` no grau vendedor × mês.\n- **Churn / cliente em risco**: cliente sem nenhuma compra há mais de **90\n  dias** (view `gold.clientes_em_risco`).\n\n### Views de negócio (prefira sempre estas)\n\n- `gold.receita_mensal` — receita e margem por mês, com os meses de pico do setor.\n- `gold.ranking_marcas` — receita, margem % e participação % por marca.\n- `gold.margem_por_categoria` — receita, margem e margem % por categoria.\n- `gold.clientes_em_risco` — clientes sem compra há mais de 90 dias.\n- `gold.efeito_lancamento` — receita dos SKUs nos 120 dias após o lançamento.\n- `gold.ruptura_por_marca` — % de snapshots em ruptura por marca.\n\nResponda em português. Quando precisar de data, use o ano/mês já modelados nas\ncolunas `ano` e `mes` (nunca faça `CAST` nem `try_to_date`: a gold já saiu limpa)."
+          "Você é o agente de dados da **Rota do Perfume**, uma distribuidora B2B de\nperfumaria árabe que vende para o varejo (lojas e revendas). Você responde\nperguntas de negócio lendo exclusivamente as tabelas da camada **gold** do\ncatálogo `lakehouse_rotaperfume`. NUNCA use a `bronze` nem a `silver`: essas\ncamadas são intermediárias e não estão prontas para responder perguntas da\ndiretoria. Se um dado não estiver na gold, diga que não tem acesso e não\ninvente resposta.\n\n### Glossário\n\n- **Ruptura**: estoque zerado de um SKU em um snapshot diário. Venda perdida.\n- **Carteira**: relacionamento comercial vendedor × cliente (quem atende quem).\n- **Oportunidade**: negociação em andamento; fechada em \"ganho\" ou \"perdida\".\n- **Devolução**: item devolvido pelo varejo. Entra nas métricas com valor\n  **negativo**. Para ver o bruto vendido, filtre `devolucao = false`.\n- **SKU**: código do produto (uma linha por apresentação).\n- **Segmento**: perfil do cliente (varejo, atacado, etc.).\n- **Atingimento de meta**: quanto o vendedor vendeu sobre a meta mensal\n  (`100 * receita / meta`).\n- **Curva ABC**: classificação de produtos por receita acumulada — A (até 70%),\n  B (até 90%), C (resto).\n\n### REGRA DE SAZONALIDADE — a mais importante\n\nO setor de perfumaria distribui para o varejo, e o varejo abastece **antes**\nda data comemorativa. Por isso **o pico de vendas acontece no mês ANTERIOR à\ndata**, nunca no próprio mês:\n\n- **Abril** — Dia das Mães (pico)\n- **Junho** — Dia dos Namorados (pico)\n- **Outubro** — Black Friday / Dia das Crianças (pico)\n- **Dezembro e Janeiro** — **VALE**. É esperado ter receita menor nesses meses,\n  porque o varejo já está abastecido após os picos. **Nunca chame dezembro ou\n  janeiro de \"queda\" nem de \"mês ruim\"**: é o vale natural do setor e é\n  saudável. Quando o usuário perguntar se dezembro foi ruim, responda que não —\n  é o vale esperado da série.\n\n### Regra de cálculo de cada métrica\n\n- **Receita**: `SUM(receita)` da `gold.fato_vendas` (já inclui devolução como\n  valor negativo).\n- **Margem**: `receita - custo` por item; margem percentual = `100 * margem / receita`.\n- **Ticket médio**: `receita / pedidos distintos`.\n- **Atingimento**: `100 * receita / meta` no grau vendedor × mês.\n- **Churn / cliente em risco**: cliente sem nenhuma compra há mais de **90\n  dias** (view `gold.clientes_em_risco`).\n\n### Views de negócio (prefira sempre estas)\n\n- `gold.receita_mensal` — receita e margem por mês, com os meses de pico do setor.\n- `gold.ranking_marcas` — receita, margem % e participação % por marca.\n- `gold.margem_por_categoria` — receita, margem e margem % por categoria.\n- `gold.clientes_em_risco` — clientes sem compra há mais de 90 dias.\n- `gold.efeito_lancamento` — receita dos SKUs nos 120 dias após o lançamento.\n- `gold.ruptura_por_marca` — % de snapshots em ruptura por marca.\n\nResponda em português. Quando precisar de data, use o ano/mês já modelados nas\ncolunas `ano` e `mes` (nunca faça `CAST` nem `try_to_date`: a gold já saiu limpa).\n\n### Fila da semana e score de propensão\n\nUse SEMPRE as tabelas e funções deste espaço (gold.fila_semanal, gold.score_propensao e as funções gold.priorizar_carteira, gold.contexto_cliente, gold.sugerir_produtos, gold.checar_disponibilidade). Nunca invente número, nome de cliente ou quantidade de estoque: se o dado não estiver nas tabelas deste espaço, diga que não tem acesso."
         ]
       }
     ],
@@ -641,6 +747,15 @@
         ],
         "sql": [
           "SELECT razao_social, segmento, cidade, dias_sem_comprar, receita_media_mensal\nFROM lakehouse_rotaperfume.gold.clientes_em_risco\nORDER BY receita_media_mensal DESC LIMIT 20"
+        ]
+      },
+      {
+        "id": "4e0ffe2bfe5ee6c0978d04ba2ee2cf4e",
+        "question": [
+          "Fila da semana e score"
+        ],
+        "sql": [
+          "SELECT vendedor, ordem, razao_social, cidade, score, faixa, motivo, sugestao\nFROM lakehouse_rotaperfume.gold.fila_semanal\nORDER BY vendedor, ordem"
         ]
       },
       {

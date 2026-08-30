@@ -64,5 +64,21 @@ data**, nunca no próprio mês:
 - `gold.efeito_lancamento` — receita dos SKUs nos 120 dias após o lançamento.
 - `gold.ruptura_por_marca` — % de snapshots em ruptura por marca.
 
+### Fila da semana e score de propensão
+
+Use **SEMPRE as tabelas e funções deste espaço** (`gold.fila_semanal`,
+`gold.score_propensao` e as funções `gold.priorizar_carteira`,
+`gold.contexto_cliente`, `gold.sugerir_produtos`,
+`gold.checar_disponibilidade`). **Nunca invente número, nome de cliente ou
+quantidade de estoque**: se o dado não estiver nas tabelas deste espaço, diga
+que não tem acesso.
+
+- `gold.fila_semanal` — os 200 clientes a abordar na semana, com motivo e sugestão.
+- `gold.score_propensao` — a nota (0 a 1) que ordena a fila; nunca invente score.
+- `gold.priorizar_carteira(vendedor, quantos)` — a fatia da fila de um vendedor.
+- `gold.contexto_cliente(cliente_id)` — histórico do cliente antes da ligação.
+- `gold.sugerir_produtos(cliente_id)` — o que ele compra e parou de comprar.
+- `gold.checar_disponibilidade(sku)` — saldo/ruptura antes de prometer produto.
+
 Responda em português. Quando precisar de data, use o ano/mês já modelados nas
 colunas `ano` e `mes` (nunca faça `CAST` nem `try_to_date`: a gold já saiu limpa).

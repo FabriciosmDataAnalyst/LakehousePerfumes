@@ -7,6 +7,14 @@ bundle:
 include:
   - resources/*.yml
 
+# src/ml/ esta no .gitignore (a camada de ML nasce vazia a cada projeto). O
+# bundle respeita o .gitignore ao sincronizar, entao re-incluimos a pasta aqui:
+# sem esse bloco o notebook src/ml/11-features.py nunca chega ao workspace e a
+# tarefa falha com "Unable to access the notebook".
+sync:
+  include:
+    - src/ml/**
+
 # Variable declarations. These variables are assigned in the dev/prod targets below.
 variables:
   catalog:
