@@ -4,7 +4,9 @@
 
 Distribuidora B2B de perfumaria árabe. A pergunta que pagou o projeto: *“Tenho 3 mil clientes e 200 ligações por semana. Em quem meu vendedor liga amanhã?”* Este repo responde com uma **fila priorizada, com motivo em português e sugestão de SKU**, mais dashboard e Genie.
 
-**Demo:** `rotaperfume-direcao` em https://rotaperfume-direcao-7474658008865974.aws.databricksapps.com · Pipeline: `rotaperfume_pipeline` (16 tasks)
+**Pipeline:** `rotaperfume_pipeline` (16 tasks)
+
+![Rota do Perfume — Direção comercial](docs/app.png)
 
 ---
 
@@ -59,7 +61,7 @@ LakehousePerfumes/
 
 ## Stack
 
-Databricks Free Edition (serverless), Unity Catalog, Delta Lake, PySpark / Spark SQL, MLflow, Databricks Apps (AppKit), DABs, `uv`, `ruff`, `pytest`.
+VS Code + OpenCode com DeepSeek V3.2 Flash / Muse Spark 1.2 Free, Databricks Free Edition (serverless), PySpark / Spark SQL, Delta Lake, MLflow, Unity Catalog, Databricks Apps e Genie, tudo como código com DABs.
 
 ---
 
