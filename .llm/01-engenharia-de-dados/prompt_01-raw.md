@@ -1,21 +1,21 @@
-﻿Leia prd/CLAUDE.md antes de começar.
+﻿Leia aulas/aula-02-engenharia-de-dados/prd/CLAUDE.md antes de começar.
 
-Crie o projeto da noite 2 em rotaperfume/,
+Crie o projeto da noite 2 em aulas/aula-02-engenharia-de-dados/rotaperfume/,
 como um Databricks Asset Bundle. Esta é a primeira de seis entregas — as outras
 cinco estendem este mesmo bundle, então deixe a estrutura pronta para crescer.
 
 O ambiente está ZERADO: o catálogo não existe. Crie tudo.
 
 CONTEXTO DO WORKSPACE
-- profile: perfumariaaula   (sempre passe --profile, nunca deixe implícito)
-- host: https://dbc-16cb5127-38eb.cloud.databricks.com
-- SQL Warehouse: 39b53a84b2a3e763 (Serverless Starter Warehouse)
+- profile: projeto-dados-ia   (sempre passe --profile, nunca deixe implícito)
+- host: https://dbc-84cd5511-fa25.cloud.databricks.com
+- SQL Warehouse: 666be37e3fededf2 (Serverless Starter Warehouse)
 - Databricks Free Edition: tudo serverless, nunca configure cluster
 
 1. databricks.yml
    - bundle name: rotaperfume
    - variables: catalog (default lakehouse_rotaperfume) e warehouse_id
-     (default 39b53a84b2a3e763)
+     (default 666be37e3fededf2)
    - targets dev (default) e prod
    - include: resources/*.yml
 
@@ -72,11 +72,11 @@ CONTEXTO DO WORKSPACE
    comentário no topo do YAML, com o desenho de como ele vai ficar.
 
 7. Rode NESTA ORDEM e me mostre a saída de cada passo:
-   bash scripts/criar-catalogo.sh perfumariaaula
-   databricks bundle validate --target dev --profile perfumariaaula
-   databricks bundle deploy   --target dev --profile perfumariaaula
-   bash scripts/subir-raw.sh  perfumariaaula
-   databricks bundle run rotaperfume_pipeline --target dev --profile perfumariaaula
+   bash scripts/criar-catalogo.sh projeto-dados-ia
+   databricks bundle validate --target dev --profile projeto-dados-ia
+   databricks bundle deploy   --target dev --profile projeto-dados-ia
+   bash scripts/subir-raw.sh  projeto-dados-ia
+   databricks bundle run rotaperfume_pipeline --target dev --profile projeto-dados-ia
 
 A ordem importa duas vezes: o catálogo tem que existir antes do deploy criar os
 schemas, e o Volume tem que existir antes de subir arquivo nele.

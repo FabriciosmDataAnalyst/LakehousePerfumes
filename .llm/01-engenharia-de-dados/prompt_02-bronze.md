@@ -23,8 +23,8 @@ A camada raw já está no Volume e conferida. Agora crie a bronze.
    A ordem é o conteúdo: se a conferência falhar, a bronze não roda.
 
 3. Rode e me mostre a saída:
-   databricks bundle deploy --target dev --profile perfumariaaula
-   databricks bundle run rotaperfume_pipeline --target dev --profile perfumariaaula
+   databricks bundle deploy --target dev --profile projeto-dados-ia
+   databricks bundle run rotaperfume_pipeline --target dev --profile projeto-dados-ia
 
 CONTAGENS ESPERADAS (do gerador com seed 42 — se divergir, o erro é seu):
   produtos 292 · pedidos 28.729 · itens_pedido 197.724 · pagamentos 27.772

@@ -67,8 +67,8 @@ Acrescente ao resources/pipeline.job.yml:
   testes           depends_on: gold_marts   ← por último, e obrigatório
 
 Rode e me mostre a saída:
-  databricks bundle deploy --target dev --profile perfumariaaula
-  databricks bundle run rotaperfume_pipeline --target dev --profile perfumariaaula
+  databricks bundle deploy --target dev --profile projeto-dados-ia
+  databricks bundle run rotaperfume_pipeline --target dev --profile projeto-dados-ia
 
 Os 9 testes precisam passar. Se algum falhar, corrija a transformação —
 nunca o teste.

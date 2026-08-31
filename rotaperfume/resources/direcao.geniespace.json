@@ -99,9 +99,9 @@
         ],
         "column_configs": [
           {
-            "column_name": "_gerada_em",
+            "column_name": "_referencia",
             "description": [
-              "Quando a fila da semana foi gerada (timestamp)"
+              "Data de corte usada para montar a fila. O \"hoje\" do dataset e 2026-08-31"
             ]
           },
           {
@@ -169,6 +169,12 @@
             "description": [
               "Nome do vendedor responsavel pela carteira do cliente"
             ]
+          },
+          {
+            "column_name": "versao",
+            "description": [
+              "Versao do modelo no Unity Catalog que gerou o score desta linha"
+            ]
           }
         ]
       },
@@ -191,25 +197,25 @@
             ]
           },
           {
-            "column_name": "baseline_auc_atraso",
+            "column_name": "baseline_atraso",
             "description": [
               "AUC do baseline 'ligue para quem esta atrasado' (regua de comparacao, nao de decisao)"
             ]
           },
           {
-            "column_name": "baseline_auc_recencia",
+            "column_name": "baseline_recencia",
             "description": [
               "AUC do baseline 'ligue para quem comprou recentemente' (regua de comparacao, nao de decisao)"
             ]
           },
           {
-            "column_name": "baseline_auc_valor_total",
+            "column_name": "baseline_valor_total",
             "description": [
               "AUC do baseline 'ligue para quem compra mais' (regua de comparacao, nao de decisao)"
             ]
           },
           {
-            "column_name": "feature_top1",
+            "column_name": "feature_mais_importante",
             "description": [
               "Feature (coluna) mais importante para o modelo naquele treino"
             ]
@@ -443,7 +449,7 @@
           "Qual é a qualidade do modelo por trás da fila?"
         ],
         "sql": [
-          "SELECT versao, lift_top200, acertos_top200, taxa_base, feature_top1\nFROM lakehouse_rotaperfume.gold.modelo_metricas\nORDER BY versao DESC LIMIT 1"
+          "SELECT versao, lift_top200, acertos_top200, taxa_base, feature_mais_importante\nFROM lakehouse_rotaperfume.gold.modelo_metricas\nORDER BY versao DESC LIMIT 1"
         ]
       },
       {

@@ -77,8 +77,8 @@ depends_on: bronze_ingestao. Elas rodam EM PARALELO entre si — nenhuma
 depende da outra, e é o formato que o DAG desenha melhor na tela.
 
 Rode e me mostre a saída:
-  databricks bundle deploy --target dev --profile perfumariaaula
-  databricks bundle run rotaperfume_pipeline --target dev --profile perfumariaaula
+  databricks bundle deploy --target dev --profile projeto-dados-ia
+  databricks bundle run rotaperfume_pipeline --target dev --profile projeto-dados-ia
 
 O QUE PRECISA BATER (medido na noite 1, com seed 42):
   3.443 datas em dd/MM/yyyy convertidas · 1.111 CNPJ pontuados

@@ -16,15 +16,8 @@ para consumo por linguagem natural.
      gold.ruptura_por_marca     % de snapshots em ruptura por marca
    COMMENT em cada view dizendo QUAL PERGUNTA DE NEGÓCIO ela responde — não o
    que ela é. É assim que o Genie escolhe onde procurar.
-   Use a forma compacta `CREATE OR REPLACE VIEW nome (col COMMENT '...', ...)`
-   para comentar toda coluna sem precisar de um ALTER por coluna.
-
-   IMPORTANTE: essa lista de colunas de view aceita SÓ `coluna COMMENT`,
-   nunca `coluna TIPO ... COMMENT`. Tipos na lista de colunas da view foram
-   DESCONTINUADOS (SYNTAX_DISCONTINUED.INVALID_VIEW_COLUMN_SPEC) e o CREATE
-   falha. Se o erro aparecer num redeploy sem você ter mexido no arquivo, é o
-   workspace rodando uma CÓPIA ANTIGA (tipada) da versão anterior — um
-   redeploy re-sincroniza e resolve.
+    Use a forma compacta `CREATE OR REPLACE VIEW nome (col COMMENT '...', ...)`
+    para comentar toda coluna sem precisar de um ALTER por coluna.
 
 2. src/gold/10-auditoria-metadado.sql
    Consulte information_schema e QUEBRE com raise_error() se:
@@ -76,9 +69,9 @@ para consumo por linguagem natural.
    auditoria_de_metadado, nessa ordem, depois de gold_marts.
 
 6. Rode:
-   databricks bundle validate --target dev --profile perfumariaaula
-   databricks bundle deploy   --target dev --profile perfumariaaula
-   databricks bundle run rotaperfume_pipeline --target dev --profile perfumariaaula
+   databricks bundle validate --target dev --profile projeto-dados-ia
+   databricks bundle deploy   --target dev --profile projeto-dados-ia
+   databricks bundle run rotaperfume_pipeline --target dev --profile projeto-dados-ia
 
    O pipeline completo tem que rodar verde de ponta a ponta, com 12 tarefas:
    raw → bronze → silver ×4 → dimensões → fato → marts → testes,

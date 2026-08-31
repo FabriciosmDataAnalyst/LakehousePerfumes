@@ -41,14 +41,6 @@ Crie src/ml/12-modelo.py — um notebook Python para serverless. Nesta ordem:
    "BAD_REQUEST: For input string: None" e não menciona pasta nenhuma.
    O serverless tem MLflow 2.22: use log_model(..., artifact_path="modelo"),
    nunca o name= do MLflow 3.
-   E logue com ASSINATURA: o registro no Unity Catalog RECUSA modelo sem
-   assinatura de entrada e saída — "Model passed for registration did not
-   contain any signature metadata". Monte
-   ModelSignature(inputs=Schema([ColSpec("double", name=col) para cada
-   feature]), outputs=Schema([ColSpec("double", name="score")])) e passe
-   log_model(..., signature=..., input_example=uma linha do holdout com
-   fillna(0)) — quando o deu zebra, o treino passou verde e o register_model
-   estourou só no fim.
    Registre em lakehouse_rotaperfume.gold.propensao_compra com
    mlflow.set_registry_uri("databricks-uc") e aponte o alias @prod para a
    versão recém-criada.
@@ -76,11 +68,11 @@ Crie src/ml/12-modelo.py — um notebook Python para serverless. Nesta ordem:
    meses ninguém abre a interface de experimento:
 
    gold.modelo_metricas     uma linha por treino: versao, auc, lift_top200,
-                            acertos_top200, taxa_base, o AUC de cada um dos
-                            três baselines, a feature nº 1 e _treinado_em
+                              acertos_top200, taxa_base, o AUC de cada um dos
+                              três baselines, a feature nº 1 e _treinado_em
    gold.calibragem_holdout  faixa, clientes, compraram, taxa_de_compra e
-                            score_medio, calculados no holdout — é a prova do
-                            slide *Não é acurácia*, e a única que o comercial confere sozinho
+                              score_medio, calculados no holdout — é a prova do
+                              slide *Não é acurácia*, e a única que o comercial confere sozinho
 
 COMMENT em português NA TABELA, nas três que este prompt cria. A auditoria da
 noite 2 quebra o job se faltar, e saveAsTable não grava comment de tabela:

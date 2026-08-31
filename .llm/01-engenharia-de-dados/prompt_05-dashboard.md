@@ -18,14 +18,6 @@ REGRAS QUE QUEBRAM O DASHBOARD SE FOREM IGNORADAS:
 - Versão do widget: counter e table são version 2; bar e line são version 3;
   filtros são version 2. Versão errada = widget quebrado.
 - Toda página precisa de `"layoutVersion": "GRID_V1"`.
-- **A métrica NÃO pode ter o mesmo nome de uma coluna crua do SELECT.** O engine
-  resolve nomes sem distinguir maiúsculas — se o SELECT trouxer `receita` e o
-  `columns` declarar uma medida `Receita = SUM(\`receita\`)`, a medida "engole"
-  a coluna crua e passa a referenciar a si mesma → `BAD_REQUEST: Circular
-  reference detected in calculated field: receita`. ALIASIE as colunas cruas no
-  SELECT (`receita AS receita_linha`) e use o alias no `expression` da medida.
-  Regra geral: o `displayName` das métricas nunca colide com nenhum nome de
-  coluna do dataset.
 
 Nada de CAST, nada de try_to_date no SQL dos datasets — se você precisar de um,
 a gold está errada e o problema é lá.
@@ -49,7 +41,7 @@ pode subir quebrado. Use o tema escuro/claro com `uiSettings.theme` e uma
 paleta coerente; o padrão do workspace deixa o dashboard com cara de genérico.
 
 Rode e me mostre a saída:
-  databricks bundle validate --profile perfumariaaula
-  databricks bundle deploy --target dev --profile perfumariaaula
+  databricks bundle validate --profile projeto-dados-ia
+  databricks bundle deploy --target dev --profile projeto-dados-ia
 
 Depois me dê o link do dashboard publicado.

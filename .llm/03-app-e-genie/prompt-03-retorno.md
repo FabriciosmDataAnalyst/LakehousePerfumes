@@ -39,20 +39,13 @@ o que aconteceu na ligação.
 
 3. A RECARGA — sem isso a tela mente
 
-   useAnalyticsQuery não tem refetch, e o AppKit guarda o resultado da
-   consulta. Depois de gravar, a tela continua mostrando o número de antes.
+   useAnalyticsQuery não tem refetch. Acrescente às queries fila.sql e
+   kpis_semana.sql um parâmetro `recarga` que NÃO FILTRA NADA (algo como
+   :recarga >= 0), e um contador na tela que sobe a cada gravação. Mudando
+   o parâmetro, muda a chave do cache, e o dado é pedido de novo.
 
-   NÃO resolva isso com um parâmetro falso no SQL (:recarga >= 0). Funciona,
-   mas quem estiver com a página aberta de uma versão anterior passa a mandar
-   a consulta sem o parâmetro, e o warehouse recusa com UNBOUND_SQL_PARAMETER
-   — a tela quebra sozinha depois de um deploy.
-
-   Faça as duas coisas:
-   a) desligue o cache de leitura no createApp: cache: { enabled: false }.
-      São 200 linhas, e todas mudam quando alguém clica
-   b) recarregue em React: guarde filtro e comentários no componente PAI e
-      remonte o filho com uma `key` que muda a cada gravação. Remontar refaz
-      a consulta, sem inventar coluna nem parâmetro
+   Comente no .sql por que esse parâmetro existe — daqui a um mês ninguém
+   lembra.
 
 4. A ABA "Acompanhamento" (rota /acompanhamento)
 

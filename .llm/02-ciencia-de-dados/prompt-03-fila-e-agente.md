@@ -28,25 +28,16 @@ Crie src/ml/13-fila.sql — um arquivo SQL para rodar como sql_task.
    Não use cota igual por vendedor: a carteira de um é mais quente que a do
    outro, e cota fixa obriga a gastar ligação com cliente frio.
 
-   COMO GRAVAR NO SQL TASK (padrão dos arquivos da silver, vale aqui): o
-   warehouse REJEITA `CREATE OR REPLACE TABLE ... AS SELECT` com colunas
-   definidas — "Schema may not be specified in a Replace Table As Select
-   (RTAS)". Faça DUAS instruções, cada uma terminada em `;`:
-      CREATE OR REPLACE TABLE ... (defs) USING DELTA COMMENT '...';
-      INSERT INTO ... SELECT ...;
-   Sem o `;` entre CREATE e INSERT as duas viram uma instrução só e o
-   warehouse recusa. É o mesmo padrão dos .sql da silver (CREATE + INSERT).
-
    Colunas: vendedor, ordem, cliente_id, razao_social, cidade, uf, score,
    faixa, ticket_medio, e duas colunas escritas para gente ler:
 
    motivo — uma frase em português montada com CASE WHEN sobre as features,
    com os números reais do cliente dentro, via FORMAT_NUMBER:
      atraso_relativo > 3   -> 'Compra a cada N dias e está há M sem pedido.
-                               Risco de perder para o concorrente.'
+                                Risco de perder para o concorrente.'
      atraso_relativo > 1.5 -> 'Está N vezes mais atrasado que o ritmo dele.'
      comprou_lancamento    -> 'Comprou lançamento recente. Alta chance de
-                               repetir.'
+                                repetir.'
      valor_total no topo   -> 'Cliente grande, R$ X no ano. Manter próximo.'
      ELSE                  -> 'Dentro do ritmo. Contato de manutenção.'
    O ELSE é obrigatório: motivo nulo quebra o teste 2.

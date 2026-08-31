@@ -4,8 +4,11 @@
 --
 -- Parametro :vendedor — 'Todos' nao filtra (mostra a fila inteira); qualquer
 -- outro valor filtra as linhas daquele vendedor.
+-- :recarga >= 0 nao filtra nada (força nova consulta após gravação).
 
 -- @param vendedor STRING = Todos
+-- @param recarga INTEGER = 0
+
 WITH ultimo_retorno AS (
   SELECT
     cliente_id,
@@ -14,6 +17,7 @@ WITH ultimo_retorno AS (
     comentario,
     row_number() OVER (PARTITION BY cliente_id ORDER BY registrado_em DESC) AS rn
   FROM lakehouse_rotaperfume.gold.retorno_ligacao
+  WHERE :recarga >= 0
 )
 SELECT
   f.vendedor,
@@ -27,7 +31,7 @@ SELECT
   f.ticket_medio,
   f.motivo,
   f.sugestao,
-  CAST(f._gerada_em AS DATE) AS referencia,
+  f._referencia,
   r.status AS ultimo_status,
   r.registrado_em AS ultimo_retorno_em,
   r.comentario AS ultimo_comentario

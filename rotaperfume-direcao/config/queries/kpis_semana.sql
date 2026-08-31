@@ -4,6 +4,7 @@
 --   referencia            = quando a fila da semana foi gerada
 --   acertos/lift/taxa     = metrica da ULTIMA versao do modelo
 --   retornos              = quantas ligacoes o time ja registrou em gold.retorno_ligacao
+--   :recarga >= 0 nao filtra nada (força nova consulta após gravação)
 
 SELECT
   MAX(f.contatos)            AS contatos,
@@ -20,8 +21,9 @@ FROM (
     COUNT(*)                        AS contatos,
     COUNT(DISTINCT vendedor)        AS vendedores,
     ROUND(SUM(score * ticket_medio), 2) AS receita_esperada,
-    CAST(MAX(_gerada_em) AS DATE)   AS referencia
+    MAX(f._referencia)            AS referencia
   FROM lakehouse_rotaperfume.gold.fila_semanal
+  WHERE :recarga >= 0
 ) f
 CROSS JOIN (
   SELECT
@@ -43,5 +45,6 @@ CROSS JOIN (
     COUNT(*) AS retornos,
     COUNT(CASE WHEN status = 'vendeu' THEN 1 END) AS viraram_pedido
   FROM lakehouse_rotaperfume.gold.retorno_ligacao
+  WHERE :recarga >= 0
 ) r
 LIMIT 1;

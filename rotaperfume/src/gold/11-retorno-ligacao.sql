@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS lakehouse_rotaperfume.gold.retorno_ligacao (
   comentario      STRING      COMMENT 'Texto livre do vendedor sobre a conversa',
   registrado_em   TIMESTAMP   COMMENT 'Quando o registro foi gravado no sistema',
   registrado_por  STRING      COMMENT 'E-mail de quem estava logado quando registrou o retorno',
-  _referencia     DATE        COMMENT 'A semana da fila de origem (a coluna _referencia de fila_semanal) -- uma linha por semana, para saber de qual fila cada retorno veio'
+  _referencia     DATE        COMMENT 'Data da fila de origem (a coluna _referencia de fila_semanal) -- uma linha por semana, para saber de qual fila cada retorno veio'
 )
 USING DELTA
 COMMENT 'O que aconteceu depois da ligacao da fila da semana: status (vendeu, vai_pensar, sem_interesse, nao_atendeu), comentario do vendedor e de quem registrou. Nasce VAZIA; o time registra a mao, o pipeline nunca escreve aqui.';
