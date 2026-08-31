@@ -4,9 +4,7 @@
 
 Distribuidora B2B de perfumaria árabe. A pergunta que pagou o projeto: *“Tenho 3 mil clientes e 200 ligações por semana. Em quem meu vendedor liga amanhã?”* Este repo responde com uma **fila priorizada, com motivo em português e sugestão de SKU**, mais dashboard e Genie.
 
-**Pipeline:** `rotaperfume_pipeline` (16 tasks)
 
-![Rota do Perfume — Direção comercial](docs/app.png)
 
 ---
 
