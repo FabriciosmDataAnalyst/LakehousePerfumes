@@ -66,6 +66,7 @@ export function SemanaPage() {
       <SemanaConteudo
         key={`${vendedor}|${recarga}`}
         vendedor={vendedor}
+        recarga={recarga}
         comentarios={comentarios}
         onComentario={setComentario}
         onGravado={() => setRecarga((r) => r + 1)}

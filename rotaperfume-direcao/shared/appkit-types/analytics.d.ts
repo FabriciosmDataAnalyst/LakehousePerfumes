@@ -12,7 +12,7 @@ declare module "@databricks/appkit-ui/react" {
           vendedor: SQLStringMarker;
         };
         result: Array<{
-          /** Nome do vendedor responsavel pela carteira do cliente */
+          /** Nome do vendedor dono da carteira. Só vendedor ativo entra na fila. */
           vendedor: string;
           /** @sqlType BIGINT */
           na_fila: number;
@@ -31,39 +31,41 @@ declare module "@databricks/appkit-ui/react" {
     fila: {
         name: "fila";
         parameters: {
+          /** INT - use sql.int() */
+          recarga: SQLNumberMarker;
           /** STRING - use sql.string() */
           vendedor: SQLStringMarker;
         };
         result: Array<{
-          /** Nome do vendedor responsavel pela carteira do cliente */
+          /** Nome do vendedor dono da carteira. Só vendedor ativo entra na fila. */
           vendedor: string;
-          /** Posicao do cliente na fila DO VENDEDOR (1 = maior score da carteira dele; nao ha cota: a fila eh por score, o row_number so organiza por vendedor) */
+          /** Ordem de ligação dentro da carteira do vendedor, do maior score para o menor. */
           ordem: number;
-          /** Id do cliente (mesmo de gold.score_propensao) */
+          /** Identificador do cliente, o mesmo de gold.dim_cliente. */
           cliente_id: number;
-          /** Razao social do cliente */
+          /** Nome do cliente como o vendedor o conhece. */
           razao_social: string;
-          /** Cidade do cliente */
+          /** Cidade do cliente. Serve para agrupar as visitas de um mesmo dia. */
           cidade: string;
-          /** Estado (UF) do cliente */
+          /** Unidade federativa do cliente. */
           uf: string;
-          /** Nota de propensao a compra do modelo, entre 0 e 1 */
+          /** Probabilidade de o cliente fazer pedido nos próximos 7 dias, de 0 a 1. */
           score: number;
-          /** Faixa do score (Fria, Morna, Quente, Muito quente) */
+          /** Faixa do score em quartis: Fria, Morna, Quente, Muito quente. */
           faixa: string;
-          /** Ticket medio historico do cliente, em R$ */
+          /** Quanto o cliente gasta por pedido, em média, no histórico dele. */
           ticket_medio: number;
-          /** Motivo da indicacao em portugues, montado sobre as features com os numeros reais do cliente, para o vendedor falar com contexto */
+          /** Por que este cliente está na lista, escrito para o vendedor ler antes de discar. */
           motivo: string;
-          /** SKU a sugerir: o mais comprado do cliente na marca preferida que ele NAO comprou nos ultimos 90 dias, com o saldo do snapshot mais recente de estoque */
+          /** O SKU da marca preferida que o cliente parou de comprar, com o saldo em estoque. */
           sugestao: string;
-          /** @sqlType DATE */
-          referencia: string;
-          /** Resultado registrado apos a ligacao: vendeu, vai_pensar, sem_interesse ou nao_atendeu */
+          /** Data de corte usada para montar a fila. O "hoje" do dataset é 2026-08-31. */
+          _referencia: string;
+          /** Resultado do contato: vendeu | vai_pensar | sem_interesse | nao_atendeu. */
           ultimo_status: string;
-          /** Quando o registro foi gravado no sistema */
+          /** Quando o retorno foi registrado. Para o estado atual do cliente, use o registro mais recente por este campo. */
           ultimo_retorno_em: string;
-          /** Texto livre do vendedor sobre a conversa */
+          /** Texto livre do vendedor com observacoes sobre o contato. */
           ultimo_comentario: string;
         }>;
       };
@@ -95,7 +97,7 @@ declare module "@databricks/appkit-ui/react" {
         name: "vendedores";
         parameters: Record<string, never>;
         result: Array<{
-          /** Nome do vendedor responsavel pela carteira do cliente */
+          /** Nome do vendedor dono da carteira. Só vendedor ativo entra na fila. */
           vendedor: string;
           /** @sqlType BIGINT */
           contatos: number;
