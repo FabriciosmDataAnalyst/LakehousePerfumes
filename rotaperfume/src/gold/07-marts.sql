@@ -13,18 +13,18 @@
 
 -- ---------- mart_vendas_por_vendedor ----------
 CREATE OR REPLACE TABLE lakehouse_rotaperfume.gold.mart_vendas_por_vendedor (
-  ano                 INT,
-  mes                 INT,
-  vendedor_id         STRING,
-  nome                STRING,
-  regiao              STRING,
-  receita             DECIMAL(18,2),
-  margem              DECIMAL(18,2),
+  ano                 INT COMMENT 'Ano da venda',
+  mes                 INT COMMENT 'Mes da venda (1-12)',
+  vendedor_id         STRING COMMENT 'Id do vendedor',
+  nome                STRING COMMENT 'Nome do vendedor',
+  regiao              STRING COMMENT 'Regiao do vendedor',
+  receita             DECIMAL(18,2) COMMENT 'Receita do vendedor no mes, devolucao incluida como negativa',
+  margem              DECIMAL(18,2) COMMENT 'Margem do vendedor no mes',
   meta                DECIMAL(18,2) COMMENT 'Meta mensal do vendedor, repetida no grao vendedor x mes',
   atingimento_pct     DECIMAL(8,2) COMMENT '100 * receita / meta no grao. NULL sem meta',
   clientes_atendidos  INT COMMENT 'Clientes distintos atendidos no grao vendedor x mes',
   ticket_medio        DECIMAL(18,2) COMMENT 'receita / clientes_atendidos no grao',
-  _processado_em      TIMESTAMP
+  _processado_em      TIMESTAMP COMMENT 'Quando o mart foi gravado'
 )
 USING DELTA
 COMMENT 'Mart comercial: vendedor x mes, com meta, atingimento, clientes e ticket medio.';
@@ -53,18 +53,18 @@ GROUP BY f.ano, f.mes, f.vendedor_id, v.nome, v.regiao;
 
 -- ---------- mart_produto_performance ----------
 CREATE OR REPLACE TABLE lakehouse_rotaperfume.gold.mart_produto_performance (
-  ano           INT,
-  mes           INT,
-  sku           STRING,
-  marca         STRING,
-  categoria     STRING,
-  nota_olfativa STRING,
-  receita       DECIMAL(18,2),
-  margem        DECIMAL(18,2),
+  ano           INT COMMENT 'Ano da venda',
+  mes           INT COMMENT 'Mes da venda (1-12)',
+  sku           STRING COMMENT 'Codigo do produto',
+  marca         STRING COMMENT 'Marca do produto',
+  categoria     STRING COMMENT 'Categoria do produto',
+  nota_olfativa STRING COMMENT 'Nota olfativa do produto',
+  receita       DECIMAL(18,2) COMMENT 'Receita do SKU no mes, devolucao incluida como negativa',
+  margem        DECIMAL(18,2) COMMENT 'Margem do SKU no mes',
   margem_pct    DECIMAL(8,2) COMMENT '100 * margem / receita no grao. NULL quando receita e zero',
   quantidade    DECIMAL(18,2) COMMENT 'Soma de quantidades, com devolucao negativa',
   curva_abc     STRING COMMENT 'A (ate 70% da receita acumulada do mes), B (ate 90%), C (resto)',
-  _processado_em TIMESTAMP
+  _processado_em TIMESTAMP COMMENT 'Quando o mart foi gravado'
 )
 USING DELTA
 COMMENT 'Mart de produto: SKU x mes, com margem percentual e curva ABC por receita acumulada.';
@@ -109,12 +109,12 @@ LEFT JOIN (
 
 -- ---------- mart_financeiro_recebimento ----------
 CREATE OR REPLACE TABLE lakehouse_rotaperfume.gold.mart_financeiro_recebimento (
-  mes_vencimento     DATE,
+  mes_vencimento     DATE COMMENT 'Mes de vencimento dos titulos (inicio do mes)',
   valor_a_receber    DECIMAL(18,2) COMMENT 'Soma de valor dos titulos com vencimento no mes',
   valor_recebido     DECIMAL(18,2) COMMENT 'Soma de valor dos titulos ja recebidos (data_pagamento preenchida) no mes',
   atraso_medio_dias  DECIMAL(10,2) COMMENT 'Media de dias pagos apos o vencimento. NULL se nada atrasou',
   custo_de_taxa      DECIMAL(18,2) COMMENT 'Soma de valor * (taxa_percent / 100) no mes de vencimento',
-  _processado_em     TIMESTAMP
+  _processado_em     TIMESTAMP COMMENT 'Quando o mart foi gravado'
 )
 USING DELTA
 COMMENT 'Mart financeiro: mes de vencimento com saldo a receber, recebido, atraso medio e custo de taxa.';

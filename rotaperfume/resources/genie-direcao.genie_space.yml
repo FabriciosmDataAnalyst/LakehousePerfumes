@@ -1,0 +1,27 @@
+# Genie SPACE para a DIRECAO (feature prompt-01-genie). Um SEGUNDO space, ao
+# lado do comercial — a chave do genie-comercial NAO muda, ele fica intacto.
+#
+# O texto das instrucoes (voltado ao diretor que nao escreve SQL) vive no JSON
+# versionado em resources/direcao.geniespace.json, no campo
+# instructions.text_instructions. As 7 fontes sao so da gold: fila, score,
+# metricas do modelo, retorno de ligacao e as tres views de negocio de contexto.
+#
+# REGRAS DA API QUE FAZEM O DEPLOY FALHAR SE IGNORADAS (ja aplicadas no JSON):
+#   a) data_sources.tables ORDENADO por identifier
+#   b) column_configs de cada tabela ORDENADO por column_name
+#   c) toda text_instruction, sample_question e example_question_sql com id de
+#      32 caracteres hexadecimais minusculos, sem hifen
+#   d) essas listas tambem ORDENADAS por id
+# Os ids sao DETERMINISTICOS (md5 do conteudo da pergunta), nunca aleatorios.
+#
+# Armadilha de deploy: o space referencia gold.retorno_ligacao, que so existe
+# depois que a tarefa gold_retorno_ligacao rodar. Por isso a ordem e: deploy do
+# job -> rodar a tarefa -> deploy completo (senão PERMISSION_DENIED silencioso).
+
+resources:
+  genie_spaces:
+    genie-direcao:
+      title: "Rota do Perfume · Direção"
+      description: "Agente de dados para a direção comercial: quem ligar esta semana, quanto vale a fila e o que aconteceu depois das ligações (retorno). Le exclusivamente a gold."
+      file_path: ./direcao.geniespace.json
+      warehouse_id: ${var.warehouse_id}

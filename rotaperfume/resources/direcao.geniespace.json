@@ -1,0 +1,466 @@
+{
+  "version": 2,
+  "config": {
+    "sample_questions": [
+      {
+        "id": "1a3f9bf60a2fbc33ab9a2189ea0dd74f",
+        "question": [
+          "Quem eu ligo essa semana?"
+        ]
+      },
+      {
+        "id": "468cfaa1ce3eab8a34f2e42001433bd3",
+        "question": [
+          "Quanto vale a fila desta semana?"
+        ]
+      },
+      {
+        "id": "6e0971af24fc20c5ed7c3d8d56e14162",
+        "question": [
+          "Quais meses são os picos de venda da nossa distribuidora?"
+        ]
+      },
+      {
+        "id": "824ef61c9f9c0a53ba5bfad99b413711",
+        "question": [
+          "Qual é a qualidade do modelo por trás da fila?"
+        ]
+      },
+      {
+        "id": "9a3918d09c2203b4e18d36116699f236",
+        "question": [
+          "Quantas ligações já foram registradas e quantas viraram pedido?"
+        ]
+      }
+    ]
+  },
+  "data_sources": {
+    "tables": [
+      {
+        "identifier": "lakehouse_rotaperfume.gold.clientes_em_risco",
+        "description": [
+          "Clientes sem compra ha mais de 90 dias e quanto compravam por mes. Responde \"quem parou de comprar e quanto isso custa?\"."
+        ],
+        "column_configs": [
+          {
+            "column_name": "cidade",
+            "description": [
+              "Cidade do cliente"
+            ]
+          },
+          {
+            "column_name": "cliente_id",
+            "description": [
+              "Id do cliente"
+            ]
+          },
+          {
+            "column_name": "data_ultimo_pedido",
+            "description": [
+              "Data do ultimo pedido nao cancelado"
+            ]
+          },
+          {
+            "column_name": "dias_sem_comprar",
+            "description": [
+              "Dias desde o ultimo pedido nao cancelado; sempre acima de 90"
+            ]
+          },
+          {
+            "column_name": "meses_comprados",
+            "description": [
+              "Meses distintos em que o cliente comprou"
+            ]
+          },
+          {
+            "column_name": "razao_social",
+            "description": [
+              "Razao social do cliente"
+            ]
+          },
+          {
+            "column_name": "receita_media_mensal",
+            "description": [
+              "Quanto o cliente comprava por mes antes de sumir"
+            ]
+          },
+          {
+            "column_name": "segmento",
+            "description": [
+              "Segmento"
+            ]
+          }
+        ]
+      },
+      {
+        "identifier": "lakehouse_rotaperfume.gold.fila_semanal",
+        "description": [
+          "A fila da semana: os 200 clientes a abordar, top do score entre os elegiveis (carteira vigente e vendedor ativo), com a posicao de cada um na carteira do seu vendedor, motivo em portugues e sugestao de produto com saldo. Responde \"quem eu ligo essa semana\"."
+        ],
+        "column_configs": [
+          {
+            "column_name": "_referencia",
+            "description": [
+              "Data de corte usada para montar a fila. O \"hoje\" do dataset e 2026-08-31"
+            ]
+          },
+          {
+            "column_name": "cidade",
+            "description": [
+              "Cidade do cliente"
+            ]
+          },
+          {
+            "column_name": "cliente_id",
+            "description": [
+              "Id do cliente"
+            ]
+          },
+          {
+            "column_name": "faixa",
+            "description": [
+              "Faixa do score (Fria, Morna, Quente, Muito quente)"
+            ]
+          },
+          {
+            "column_name": "motivo",
+            "description": [
+              "Motivo da indicacao em portugues, com os numeros reais do cliente"
+            ]
+          },
+          {
+            "column_name": "ordem",
+            "description": [
+              "Posicao do cliente na fila do seu vendedor (1 = maior score da carteira dele)"
+            ]
+          },
+          {
+            "column_name": "razao_social",
+            "description": [
+              "Razao social do cliente"
+            ]
+          },
+          {
+            "column_name": "score",
+            "description": [
+              "Nota de propensao a compra do modelo, entre 0 e 1"
+            ]
+          },
+          {
+            "column_name": "sugestao",
+            "description": [
+              "SKU a sugerir: o mais comprado na marca preferida que o cliente nao comprou nos ultimos 90 dias, com o saldo do snapshot mais recente"
+            ]
+          },
+          {
+            "column_name": "ticket_medio",
+            "description": [
+              "Ticket medio historico do cliente, em R$"
+            ]
+          },
+          {
+            "column_name": "uf",
+            "description": [
+              "Estado (UF) do cliente"
+            ]
+          },
+          {
+            "column_name": "vendedor",
+            "description": [
+              "Nome do vendedor responsavel pela carteira do cliente"
+            ]
+          },
+          {
+            "column_name": "versao",
+            "description": [
+              "Versao do modelo no Unity Catalog que gerou o score desta linha"
+            ]
+          }
+        ]
+      },
+      {
+        "identifier": "lakehouse_rotaperfume.gold.modelo_metricas",
+        "description": [
+          "Metrica de qualidade do modelo de propensao, uma linha por treino: lift_top200, acertos_top200, taxa_base, AUC e a feature mais importante. lift_top200 e a metrica da diretoria - nunca use AUC para responder pergunta de negocio."
+        ],
+        "column_configs": [
+          {
+            "column_name": "acertos_top200",
+            "description": [
+              "Quantos clientes entre os 200 de maior score realmente compraram (out-of-fold)"
+            ]
+          },
+          {
+            "column_name": "auc",
+            "description": [
+              "AUC do modelo no holdout. Metrica de quem TREINA o modelo, nao de quem decide ligacao"
+            ]
+          },
+          {
+            "column_name": "baseline_atraso",
+            "description": [
+              "AUC do baseline 'ligue para quem esta atrasado' (regua de comparacao, nao de decisao)"
+            ]
+          },
+          {
+            "column_name": "baseline_recencia",
+            "description": [
+              "AUC do baseline 'ligue para quem comprou recentemente' (regua de comparacao, nao de decisao)"
+            ]
+          },
+          {
+            "column_name": "baseline_valor_total",
+            "description": [
+              "AUC do baseline 'ligue para quem compra mais' (regua de comparacao, nao de decisao)"
+            ]
+          },
+          {
+            "column_name": "feature_mais_importante",
+            "description": [
+              "Feature (coluna) mais importante para o modelo naquele treino"
+            ]
+          },
+          {
+            "column_name": "lift_top200",
+            "description": [
+              "Quantas vezes a taxa de compra dos 200 de maior score e maior que a taxa base. A metrica da diretoria"
+            ]
+          },
+          {
+            "column_name": "taxa_base",
+            "description": [
+              "Taxa media de compra em 7 dias sobre todos os clientes (denominador do lift)"
+            ]
+          },
+          {
+            "column_name": "versao",
+            "description": [
+              "Versao do modelo correspondente a essa linha de metrica"
+            ]
+          }
+        ]
+      },
+      {
+        "identifier": "lakehouse_rotaperfume.gold.ranking_marcas",
+        "description": [
+          "Ranking de marcas por receita, margem percentual e participacao. Responde \"quais marcas estao vendendo?\"."
+        ],
+        "column_configs": [
+          {
+            "column_name": "marca",
+            "description": [
+              "Marca do produto"
+            ]
+          },
+          {
+            "column_name": "margem_pct",
+            "description": [
+              "Margem percentual: 100 * margem / receita"
+            ]
+          },
+          {
+            "column_name": "participacao_pct",
+            "description": [
+              "Participacao da marca na receita total"
+            ]
+          },
+          {
+            "column_name": "receita",
+            "description": [
+              "Receita total da marca, devolucao incluida como negativa"
+            ]
+          }
+        ]
+      },
+      {
+        "identifier": "lakehouse_rotaperfume.gold.receita_mensal",
+        "description": [
+          "Receita, margem e pedidos por mes, com a marca de pico do setor. Responde \"como foi a receita do mes/ano?\" e \"dezembro foi um mes ruim?\"."
+        ],
+        "column_configs": [
+          {
+            "column_name": "ano",
+            "description": [
+              "Ano da venda"
+            ]
+          },
+          {
+            "column_name": "margem",
+            "description": [
+              "Soma de margem do mes"
+            ]
+          },
+          {
+            "column_name": "mes",
+            "description": [
+              "Mes da venda (1-12)"
+            ]
+          },
+          {
+            "column_name": "mes_pico_setor",
+            "description": [
+              "true em abril, junho e outubro: picos do setor. Dezembro e janeiro sao VALE, nao queda"
+            ]
+          },
+          {
+            "column_name": "pedidos",
+            "description": [
+              "Pedidos distintos (nao cancelados) no mes"
+            ]
+          },
+          {
+            "column_name": "receita",
+            "description": [
+              "Soma de receita do mes, devolucao incluida como negativa"
+            ]
+          }
+        ]
+      },
+      {
+        "identifier": "lakehouse_rotaperfume.gold.retorno_ligacao",
+        "description": [
+          "O que aconteceu depois da ligacao da fila: status (vendeu, vai_pensar, sem_interesse, nao_atendeu), comentario do vendedor, de quem registrou e a semana da fila. NASCE VAZIA: o time registra a mao. Se a resposta for zero, diga que ninguem registrou retorno ainda - nao invente numero."
+        ],
+        "column_configs": [
+          {
+            "column_name": "_referencia",
+            "description": [
+              "A semana da fila de origem (a coluna _referencia de fila_semanal)"
+            ]
+          },
+          {
+            "column_name": "cliente_id",
+            "description": [
+              "Id do cliente que recebeu a ligacao (mesma chave de fila_semanal e score_propensao)"
+            ]
+          },
+          {
+            "column_name": "comentario",
+            "description": [
+              "Texto livre do vendedor sobre a conversa"
+            ]
+          },
+          {
+            "column_name": "registrado_em",
+            "description": [
+              "Quando o registro foi gravado"
+            ]
+          },
+          {
+            "column_name": "registrado_por",
+            "description": [
+              "E-mail de quem estava logado quando registrou o retorno"
+            ]
+          },
+          {
+            "column_name": "status",
+            "description": [
+              "Resultado apos a ligacao: vendeu, vai_pensar, sem_interesse ou nao_atendeu"
+            ]
+          },
+          {
+            "column_name": "vendedor",
+            "description": [
+              "Nome do vendedor que fez a ligacao"
+            ]
+          }
+        ]
+      },
+      {
+        "identifier": "lakehouse_rotaperfume.gold.score_propensao",
+        "description": [
+          "Nota de propensao a compra de cada cliente: o score (0 a 1), a faixa, a data de referencia e a versao do modelo. E a fonte que ordena a fila da semana - nunca invente score."
+        ],
+        "column_configs": [
+          {
+            "column_name": "_referencia",
+            "description": [
+              "Data de corte usada para calcular as features que geraram o score"
+            ]
+          },
+          {
+            "column_name": "cliente_id",
+            "description": [
+              "Id do cliente"
+            ]
+          },
+          {
+            "column_name": "faixa",
+            "description": [
+              "Faixa do score (Fria, Morna, Quente, Muito quente)"
+            ]
+          },
+          {
+            "column_name": "score",
+            "description": [
+              "Nota de propensao a compra do modelo, entre 0 e 1 (chance de comprar nos proximos 7 dias)"
+            ]
+          },
+          {
+            "column_name": "versao",
+            "description": [
+              "Versao do modelo que gerou o score"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "instructions": {
+    "text_instructions": [
+      {
+        "id": "a658d105529ffdbe92f30d1068ed4ce0",
+        "content": [
+          "Você é o agente de dados da **Rota do Perfume** para a **direção comercial**. Seu usuário não escreve SQL: é o diretor que decide quais clientes a equipe liga esta semana. Você responde lendo exclusivamente as tabelas da camada **gold** do catálogo `lakehouse_rotaperfume`. NUNCA use a `bronze` nem a `silver`: essas camadas são intermediárias e não estão prontas para responder pergunta de diretoria. Se um dado não estiver nas sete tabelas deste espaço, diga que não tem acesso e não invente resposta.\n\n### O que é o score\n\n- **Score**: probabilidade (0 a 1) de o cliente comprar nos próximos 7 dias, calculada pelo modelo.\n- **Faixa**: quartil do score entre todos os clientes — Fria, Morna, Quente ou Muito quente.\n- **Ordem** (na fila): a posição do cliente na carteira do seu vendedor, da maior para a menor nota.\n- **Motivo**: por que o modelo indicou aquele cliente, em português e com os números reais dele.\n\n### A fila é GLOBAL — não é cota por vendedor\n\nA `gold.fila_semanal` tem 200 clientes escolhidos pelo TOPO DO SCORE entre os elegíveis, sem reservar vaga por vendedor. Um vendedor com a carteira mais quente (muitos clientes de score alto) recebe mais contatos, e outro pode receber poucos ou nenhum. ISSO ESTÁ CERTO: é a fila priorizando onde a chance de venda é maior. Se o diretor perguntar por que um vendedor ficou de fora, responda que a fila é global e não distribui cota.\n\n### Receita esperada da fila\n\nA receita esperada da fila da semana é `SUM(score * ticket_medio)` sobre a `fila_semanal`. É uma **ESTIMATIVA** do potencial da semana, NUNCA receita realizada. Diga sempre que é estimativa e não some com a receita realizada dos marts.\n\n### A métrica da diretoria é lift_top200\n\n- O modelo é medido por **lift_top200** em `gold.modelo_metricas` (mais tarde, acertos_top200 e taxa_base): quantas vezes os 200 clientes de maior score compram mais que a média.\n- **NUNCA cite AUC para responder pergunta de negócio.** AUC é métrica de quem treina o modelo; o valor está na tabela, mas não é número de diretoria. Se perguntarem pela qualidade do modelo, responda com lift_top200.\n\n### retorno_ligacao nasce VAZIA\n\n`gold.retorno_ligacao` registra o que aconteceu depois da ligação (vendeu, vai_pensar, sem_interesse, nao_atendeu). O time ainda está começando a registrar: se a resposta for zero, diga que **ninguém registrou retorno ainda** — não invente número, e não use a fila como se fosse retorno. Um cliente pode ter mais de um retorno (uma linha por semana); para o estado atual de um cliente, use o retorno mais recente por `registrado_em`.\n\n### REGRA DE SAZONALIDADE — a mais importante\n\nO varejo abastece **antes** da data comemorativa. **O pico de vendas acontece no mês ANTERIOR à data**, nunca no próprio mês: **Abril** (Dia das Mães), **Junho** (Dia dos Namorados), **Outubro** (Black Friday / Dia das Crianças). **Dezembro e Janeiro são VALE**, esperado e saudável — nunca chame de \"queda\" nem de \"mês ruim\" quando o usuário perguntar.\n\n### Fontes deste espaço\n\n- `gold.fila_semanal` — o assunto principal: quem ligar esta semana e por quê.\n- `gold.score_propensao` — a nota de todos os clientes; para olhar fora da fila.\n- `gold.modelo_metricas` — lift_top200, acertos_top200 e taxa_base (a régua da direção).\n- `gold.retorno_ligacao` — o que aconteceu depois da ligação (nasce vazio).\n- `gold.clientes_em_risco`, `gold.ranking_marcas`, `gold.receita_mensal` — apoio de contexto.\n\nResponda em português. Use as colunas `ano` e `mes` já modeladas (nunca `CAST` nem `try_to_date`: a gold já saiu limpa)."
+        ]
+      }
+    ],
+    "example_question_sqls": [
+      {
+        "id": "1a3f9bf60a2fbc33ab9a2189ea0dd74f",
+        "question": [
+          "Quem eu ligo essa semana?"
+        ],
+        "sql": [
+          "SELECT vendedor, ordem, razao_social, cidade, score, faixa, motivo, sugestao\nFROM lakehouse_rotaperfume.gold.fila_semanal\nORDER BY vendedor, ordem"
+        ]
+      },
+      {
+        "id": "468cfaa1ce3eab8a34f2e42001433bd3",
+        "question": [
+          "Quanto vale a fila desta semana?"
+        ],
+        "sql": [
+          "SELECT ROUND(SUM(score * ticket_medio), 2) AS receita_esperada_estimada,\n       COUNT(*) AS clientes,\n       ROUND(SUM(score), 2) AS scores_somados\nFROM lakehouse_rotaperfume.gold.fila_semanal"
+        ]
+      },
+      {
+        "id": "6e0971af24fc20c5ed7c3d8d56e14162",
+        "question": [
+          "Quais meses são os picos de venda da nossa distribuidora?"
+        ],
+        "sql": [
+          "SELECT ano, mes, mes_pico_setor, receita, pedidos\nFROM lakehouse_rotaperfume.gold.receita_mensal\nORDER BY ano, mes"
+        ]
+      },
+      {
+        "id": "824ef61c9f9c0a53ba5bfad99b413711",
+        "question": [
+          "Qual é a qualidade do modelo por trás da fila?"
+        ],
+        "sql": [
+          "SELECT versao, lift_top200, acertos_top200, taxa_base, feature_mais_importante\nFROM lakehouse_rotaperfume.gold.modelo_metricas\nORDER BY versao DESC LIMIT 1"
+        ]
+      },
+      {
+        "id": "9a3918d09c2203b4e18d36116699f236",
+        "question": [
+          "Quantas ligações já foram registradas e quantas viraram pedido?"
+        ],
+        "sql": [
+          "SELECT COUNT(*) AS ligacoes_registradas,\n       COUNT(CASE WHEN status = 'vendeu' THEN 1 END) AS viraram_pedido\nFROM lakehouse_rotaperfume.gold.retorno_ligacao"
+        ]
+      }
+    ]
+  }
+}

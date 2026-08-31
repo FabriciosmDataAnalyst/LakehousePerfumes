@@ -13,18 +13,18 @@
 -- Uma linha por cliente. Indicadores de compra codificados aqui para a
 -- analise de RFM nao depender de JOIN com fato todo dia.
 CREATE OR REPLACE TABLE lakehouse_rotaperfume.gold.dim_cliente (
-  cliente_id            STRING,
-  razao_social          STRING,
-  segmento              STRING,
-  cidade                STRING,
-  uf                    STRING,
-  data_cadastro         DATE,
+  cliente_id            STRING COMMENT 'Id do cliente (canonico apos dedup por CNPJ)',
+  razao_social          STRING COMMENT 'Razao social do cliente',
+  segmento              STRING COMMENT 'Segmento do cliente (varejo, atacado, etc)',
+  cidade                STRING COMMENT 'Cidade do cliente',
+  uf                    STRING COMMENT 'Estado (UF) do cliente',
+  data_cadastro         DATE COMMENT 'Data de cadastro do cliente no CRM',
   data_primeiro_pedido  DATE COMMENT 'Primeiro pedido NAO cancelado; NULL para cliente sem pedido valido',
   data_ultimo_pedido    DATE COMMENT 'Ultimo pedido NAO cancelado; NULL para cliente sem pedido',
   total_pedidos         INT    COMMENT 'Pedidos NAO cancelados do cliente',
   receita_acumulada     DECIMAL(18,2) COMMENT 'Soma de valor_liquido dos pedidos NAO cancelados do cliente',
   dias_sem_comprar      INT    COMMENT 'DECISAO: dias desde o ultimo pedido NAO cancelado ate hoje; NULL para cliente que nunca comprou. Coluna vocal para a analise de cadencia/RFM',
-  _processado_em        TIMESTAMP
+  _processado_em        TIMESTAMP COMMENT 'Quando a dimensao foi gravada'
 )
 USING DELTA
 COMMENT 'Clientes conformados, uma linha por cliente, com indicadores de compra para a analise de cadencia.';
@@ -57,14 +57,14 @@ GROUP BY c.cliente_id, c.razao_social, c.segmento, c.cidade, c.uf, c.data_cadast
 -- Uma linha por SKU, com o que e intrínseco ao produto e a decisao de
 -- descontinuado (derivada da flag ativo da silver).
 CREATE OR REPLACE TABLE lakehouse_rotaperfume.gold.dim_produto (
-  sku             STRING,
-  descricao       STRING,
-  marca           STRING,
-  categoria       STRING,
-  nota_olfativa   STRING,
-  custo_unitario  DECIMAL(18,2),
-  preco_tabela    DECIMAL(18,2),
-  data_lancamento DATE,
+  sku             STRING COMMENT 'Codigo do produto (uma linha por apresentacao)',
+  descricao       STRING COMMENT 'Descricao do produto',
+  marca           STRING COMMENT 'Marca do produto',
+  categoria       STRING COMMENT 'Categoria do produto',
+  nota_olfativa   STRING COMMENT 'Nota olfativa do produto',
+  custo_unitario  DECIMAL(18,2) COMMENT 'Custo unitario do produto (base da margem no fato)',
+  preco_tabela    DECIMAL(18,2) COMMENT 'Preco de tabela do produto',
+  data_lancamento DATE COMMENT 'Data de lancamento do produto; NULL para produtos sem lancamento registrado',
   descontinuado   BOOLEAN COMMENT 'DERIVADO: true quando o produto esta inativo na silver.produtos (nao e mais vendido)'
 )
 USING DELTA
@@ -83,13 +83,13 @@ FROM lakehouse_rotaperfume.silver.produtos;
 -- Uma linha por vendedor. ativo = vendedor ainda na empresa (sem data de
 -- desligamento). meta mensal conform period (meta vs atingimento no mart).
 CREATE OR REPLACE TABLE lakehouse_rotaperfume.gold.dim_vendedor (
-  vendedor_id     STRING,
-  nome            STRING,
-  regiao          STRING,
-  uf              STRING,
-  data_admissao    DATE,
-  data_desligamento DATE,
-  meta_mensal      DECIMAL(18,2),
+  vendedor_id     STRING COMMENT 'Id do vendedor',
+  nome            STRING COMMENT 'Nome do vendedor',
+  regiao          STRING COMMENT 'Regiao de atuacao do vendedor',
+  uf              STRING COMMENT 'Estado (UF) base do vendedor',
+  data_admissao    DATE COMMENT 'Data de admissao do vendedor',
+  data_desligamento DATE COMMENT 'Data de desligamento; NULL para vendedor ativo',
+  meta_mensal      DECIMAL(18,2) COMMENT 'Meta mensal do vendedor; base do atingimento no mart comercial',
   ativo            BOOLEAN COMMENT 'DERIVADO: true quando o vendedor nao tem data de desligamento'
 )
 USING DELTA
@@ -108,12 +108,12 @@ FROM lakehouse_rotaperfume.silver.vendedores;
 -- analise responder "o dia X feriado?" ou pivotar por mes de forma conformada.
 -- mes_pico_setor e DECISÃO de negocio (nao tecnica): abril, junho e outubro.
 CREATE OR REPLACE TABLE lakehouse_rotaperfume.gold.dim_calendario (
-  data            DATE,
-  ano             INT,
-  mes             INT,
-  nome_mes        STRING,
-  trimestre       INT,
-  dia_da_semana   STRING,
+  data            DATE COMMENT 'Dia no calendario',
+  ano             INT COMMENT 'Ano do dia',
+  mes             INT COMMENT 'Mes do dia (1-12)',
+  nome_mes        STRING COMMENT 'Nome do mes (extenso)',
+  trimestre       INT COMMENT 'Trimestre do ano',
+  dia_da_semana   STRING COMMENT 'Nome do dia da semana',
   mes_pico_setor  BOOLEAN COMMENT 'DECISAO: abril, junho e outubro sao os picos sazonais do setor (dia das maes, dos namorados, criancas). TRUE nesses meses'
 )
 USING DELTA

@@ -127,3 +127,84 @@ resources:
           depends_on:
             - task_key: gold_marts
           max_retries: 0
+
+        # feature: o caminho de volta. A gold ate aqui so nascia do pipeline;
+        # retorno_ligacao e a UNICA tabela cujo dado vem da mao do time (o que
+        # aconteceu depois da ligacao). Por isso ela usa CREATE TABLE IF NOT
+        # EXISTS, nunca CREATE OR REPLACE: o redeploy nao pode apagar o retorno
+        # ja registrado. O job vai de 15 para 16 tarefas.
+        - task_key: gold_retorno_ligacao
+          description: "Declara o contrato de gold.retorno_ligacao (quem ligou, status vendeu/vai_pensar/sem_interesse/nao_atendeu, comentario, de quem registrou e a semana da fila). CREATE TABLE IF NOT EXISTS de proposito: o dado nasce no campo, NUNCA no pipeline."
+          sql_task:
+            warehouse_id: ${var.warehouse_id}
+            file:
+              path: ../src/gold/11-retorno-ligacao.sql
+          depends_on:
+            - task_key: gold_marts
+          max_retries: 0
+
+        # feature 06: o que o agente (Genie) vai consumir. Depois dos marts e
+        # dos testes rodam, em PARALELO entre si, as views de negocio e a
+        # auditoria de metadado (que e o teste que da "dente" a essa entrega).
+        - task_key: metricas_de_negocio
+          description: As 6 views de negocio (receita_mensal, ranking_marcas, margem_por_categoria, clientes_em_risco, efeito_lancamento, ruptura_por_marca) com nome que a diretoria usa e toda coluna comentada.
+          sql_task:
+            warehouse_id: ${var.warehouse_id}
+            file:
+              path: ../src/gold/09-metricas-negocio.sql
+          depends_on:
+            - task_key: testes
+          max_retries: 0
+
+        - task_key: auditoria_de_metadado
+          description: Consulta information_schema e QUEBRA o job se houver tabela/view da gold ou coluna de fato_vendas/views de negocio sem COMMENT (metadado faltando e bug). Ao final imprime o relatorio de cobertura.
+          sql_task:
+            warehouse_id: ${var.warehouse_id}
+            file:
+              path: ../src/gold/10-auditoria-metadado.sql
+          depends_on:
+            - task_key: metricas_de_negocio
+          max_retries: 0
+
+        # feature 01 da noite de ML: as features para o modelo. Depois dos
+        # testes, porque modelo nao se treina com dado que ainda nao passou na
+        # qualidade. Nota: features_treino/features_cliente nascem aqui; se a
+        # auditoria rodar antes delas no mesmo job, os objetos ainda nao
+        # existem — e o COMMENT ON TABLE ja vai gravado quando a tarefa termina.
+        - task_key: ml_features
+          description: Monta gold.features_treino (corte 2026-08-01 + rotulo comprou_em_7d) e gold.features_cliente (corte 2026-08-31), 20 features por cliente, com a mesma funcao montar_features e a data de corte gravada em _referencia.
+          notebook_task:
+            notebook_path: ../src/ml/11-features.py
+            base_parameters:
+              catalog: ${var.catalog}
+          depends_on:
+            - task_key: testes
+          max_retries: 0
+
+        # feature 02 da noite de ML: o modelo. Depois das features. Treina com
+        # HistGradientBoosting (nunca XGBoost: quebra no reload do serverless),
+        # registra no UC com alias @prod, pontua e grava score_propensao e as
+        # metricas como tabelas (o Genie nao le MLflow).
+        - task_key: ml_modelo
+          description: Treina o modelo de propensao (HistGradientBoosting, seed 42), mede baseline/AUC/lift_top200 out-of-fold, registra no UC (propensao_compra, alias @prod), verifica 3 asserts de qualidade, pontua os clientes em gold.score_propensao e grava gold.modelo_metricas/gold.calibragem_holdout.
+          notebook_task:
+            notebook_path: ../src/ml/12-modelo.py
+            base_parameters:
+              catalog: ${var.catalog}
+          depends_on:
+            - task_key: ml_features
+          max_retries: 0
+
+        # feature 03: a fila da semana que o comercial atrasa. Le o score da
+        # gold.score_propensao (gerado por ml_modelo) e monta gold.fila_semanal
+        # com os 200 top do score entre os elegiveis, uma posicao por vendedor,
+        # mais as 4 funcoes de apoio e os 3 testes.
+        - task_key: ml_fila
+          description: Monta gold.fila_semanal (200 clientes, top do score com carteira vigente e vendedor ativo, posicao por vendedor), as 4 funcoes de apoio (priorizar_carteira, contexto_cliente, sugerir_produtos, checar_disponibilidade) e os 3 testes de qualidade que quebram o job.
+          sql_task:
+            warehouse_id: ${var.warehouse_id}
+            file:
+              path: ../src/ml/13-fila.sql
+          depends_on:
+            - task_key: ml_modelo
+          max_retries: 0

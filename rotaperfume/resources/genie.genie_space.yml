@@ -1,0 +1,29 @@
+# Genie SPACE versionado como codigo (feature 06 / deploy 6 — o ultimo).
+#
+# O agente de dados nao e configurado clicando na interface: ele e um arquivo
+# JSON (.geniespace.json) declarado aqui como recurso `genie_spaces` do bundle,
+# e sobe junto no deploy. Mesma ideia do dashboard da feature 05: instrucoes,
+# perguntas de exemplo e pares pergunta->SQL versionados, com diff e rollback.
+#
+# REGRAS DA API QUE FAZEM O DEPLOY FALHAR SE IGNORADAS (ja aplicadas no JSON):
+#   a) data_sources.tables ORDENADO por identifier
+#   b) column_configs de cada tabela ORDENADO por column_name
+#   c) toda text_instruction, sample_question e example_question_sql com id de
+#      32 caracteres hexadecimais minusculos, sem hifen
+#   d) essas listas tambem ORDENADAS por id
+# Os ids sao DETERMINISTICOS (md5 do conteudo da pergunta), nunca aleatorios:
+# um redeploy nao recria as perguntas nem gera diff sem motivo.
+#
+# A CHAVE do recurso e diferente da chave do dashboard (dashboard-comercial):
+# o bundle recusa duas chaves iguais mesmo em tipos de recurso diferentes.
+#
+# O texto das instrucoes vive em docs/genie-instrucoes.md, na mesma redacao
+# usada aqui dentro do serialized_space.
+
+resources:
+  genie_spaces:
+    genie-comercial:
+      title: "Rota Perfume - Comercial"
+      description: "Agente de dados que responde perguntas da diretoria lendo exclusivamente a gold (nunca a bronze)."
+      file_path: ./comercial.geniespace.json
+      warehouse_id: ${var.warehouse_id}

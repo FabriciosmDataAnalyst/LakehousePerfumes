@@ -8,3 +8,9 @@ scratch/**
 !scratch/README.md
 **/explorations/**
 **/!explorations/README.md
+
+# A camada de ML nasce vazia a cada projeto. O notebook e re-sincronizado no
+# deploy pelo sync.include do databricks.yml — sem isso o bundle respeita o
+# .gitignore e o notebook nunca chega ao workspace ("Unable to access the
+# notebook").
+src/ml/
