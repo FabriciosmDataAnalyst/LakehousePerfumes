@@ -128,7 +128,7 @@ resources:
             - task_key: gold_marts
           max_retries: 0
 
-        # feature: o caminho de volta. A gold ate aqui so nascia do pipeline;
+        # feature 01 da noite de agentes: o caminho de volta. A gold ate aqui so nascia do pipeline;
         # retorno_ligacao e a UNICA tabela cujo dado vem da mao do time (o que
         # aconteceu depois da ligacao). Por isso ela usa CREATE TABLE IF NOT
         # EXISTS, nunca CREATE OR REPLACE: o redeploy nao pode apagar o retorno

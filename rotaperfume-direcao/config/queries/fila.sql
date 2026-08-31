@@ -7,7 +7,7 @@
 -- :recarga >= 0 nao filtra nada (força nova consulta após gravação).
 
 -- @param vendedor STRING = Todos
--- @param recarga INTEGER = 0
+-- @param recarga INT = 0
 
 WITH ultimo_retorno AS (
   SELECT

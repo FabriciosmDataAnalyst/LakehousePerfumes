@@ -44,17 +44,18 @@ const STATUS_ORDER = ['vendeu', 'vai_pensar', 'sem_interesse', 'nao_atendeu'] as
 
 interface Props {
   vendedor: string;
+  recarga: number;
   comentarios: ComentariosPorCliente;
   onComentario: (clienteId: string, texto: string) => void;
   onGravado: () => void;
 }
 
-export function SemanaConteudo({ vendedor, comentarios, onComentario, onGravado }: Props) {
+export function SemanaConteudo({ vendedor, recarga, comentarios, onComentario, onGravado }: Props) {
   const [gravando, setGravando] = useState<string | null>(null);
   const [erroGravacao, setErroGravacao] = useState<string | null>(null);
 
   const kpis = useAnalyticsQuery('kpis_semana');
-  const fila = useAnalyticsQuery('fila', { vendedor: sql.string(vendedor) });
+  const fila = useAnalyticsQuery('fila', { vendedor: sql.string(vendedor), recarga: sql.number(recarga) });
 
   const kpiRow = kpis.data?.[0];
 
@@ -318,7 +319,7 @@ export function SemanaConteudo({ vendedor, comentarios, onComentario, onGravado 
                                   variant={status === 'vendeu' ? 'default' : 'outline'}
                                   disabled={gravando !== null}
                                   onClick={() => {
-                                    void gravar(asNum(r.cliente_id), r.vendedor, status, r.referencia);
+                                    void gravar(asNum(r.cliente_id), r.vendedor, status, r._referencia);
                                   }}
                                 >
                                   {gravando === `${clienteId}:${status}` ? 'Gravando…' : STATUS_LABEL[status]}
